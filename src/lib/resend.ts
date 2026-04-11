@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendResendEmail({
   to,
   subject,
@@ -11,8 +9,20 @@ export async function sendResendEmail({
   subject: string;
   html: string;
 }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
+  }
+
+  const resend = new Resend(apiKey);
+  const fromEmail = process.env.RESEND_FROM_EMAIL;
+  
+  if (!fromEmail) {
+    throw new Error('Missing RESEND_FROM_EMAIL environment variable');
+  }
+
   const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL!,
+    from: fromEmail,
     to,
     subject,
     html,
