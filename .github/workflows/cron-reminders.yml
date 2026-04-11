@@ -10,7 +10,19 @@ jobs:
   run-cron:
     runs-on: ubuntu-latest
     steps:
+      - name: Verify Secrets
+        run: |
+          if [ -z "${{ secrets.URL_PROJECT }}" ]; then
+            echo "::error::URL_PROJECT secret is missing! Go to Settings -> Secrets -> Actions to add it."
+            exit 1
+          fi
+          if [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "::error::CRON_SECRET secret is missing! Go to Settings -> Secrets -> Actions to add it."
+            exit 1
+          fi
+
       - name: Hit Cron Endpoint
         run: |
-          curl -X GET "${{ secrets.URL_PROJECT }}/api/cron/send-reminders" \
+          echo "Hitting endpoint: ${{ secrets.URL_PROJECT }}/api/cron/send-reminders"
+          curl -f -v -X GET "${{ secrets.URL_PROJECT }}/api/cron/send-reminders" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
