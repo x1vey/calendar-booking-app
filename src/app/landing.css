@@ -1,0 +1,106 @@
+/* callme Landing Page Styles */
+
+:root {
+  --callme-bg: #ffffff;
+  --callme-slate-50: #f8fafc;
+  --callme-slate-100: #f1f5f9;
+  --callme-slate-200: #e2e8f0;
+  --callme-slate-400: #94a3b8;
+  --callme-slate-600: #475569;
+  --callme-slate-900: #0f172a;
+  --callme-sage: #2d5a27; /* Sophisticated Sage Green */
+  --callme-sage-light: #f0f4ef;
+  --planner-border: #e2e8f0;
+}
+
+.landing-body {
+  background-color: var(--callme-bg);
+  color: var(--callme-slate-900);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.serif-heading {
+  font-family: 'Playfair Display', serif; /* Or similar sophisticated serif */
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Organized Grid Background */
+.grid-bg {
+  background-image: 
+    linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Planner Components */
+.planner-card {
+  background: white;
+  border: 1px solid var(--planner-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.planner-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.1);
+  border-color: var(--callme-slate-300);
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--callme-sage);
+  border: 2px solid white;
+  box-shadow: 0 0 0 4px var(--callme-sage-light);
+}
+
+.timeline-line {
+  width: 2px;
+  height: 100%;
+  background-color: var(--planner-border);
+}
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  opacity: 0;
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+/* Nav button */
+.btn-planner {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--callme-slate-900);
+  background: transparent;
+  color: var(--callme-slate-900);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-planner:hover {
+  background: var(--callme-slate-900);
+  color: white;
+}
+
+.btn-planner-primary {
+  padding: 0.75rem 2rem;
+  background: var(--callme-slate-900);
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-planner-primary:hover {
+  background: #1e293b;
+  transform: scale(1.02);
+}
