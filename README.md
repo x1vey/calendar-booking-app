@@ -1,4 +1,4 @@
-# Calendar Booking App
+# Calendar Booking App.
 
 A lightweight, full-stack calendar booking application built with **Next.js 14+ (App Router)**, **Supabase**, and **Google Calendar API**.
 
