@@ -1,0 +1,16 @@
+name: Cron Reminders
+
+on:
+  schedule:
+    # Runs every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  run-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit Cron Endpoint
+        run: |
+          curl -X GET "${{ secrets.URL_PROJECT }}/api/cron/send-reminders" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
