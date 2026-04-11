@@ -10,13 +10,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = createClient();
+  
+  // Lazy initialize client to avoid build-time crashes
+  const getSupabase = () => createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -32,6 +35,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
