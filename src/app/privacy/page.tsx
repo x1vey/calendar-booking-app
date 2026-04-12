@@ -54,7 +54,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">5. Contact Us</h2>
               <p>
-                If you have any questions about this Privacy Policy, please contact us at privacy@callme.com.
+                If you have any questions about this Privacy Policy, please contact us at hi@hisubhadeep.com.
               </p>
             </section>
           </div>
