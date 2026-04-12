@@ -1,56 +1,66 @@
 import React from 'react';
-import { LandingNav, LandingHero, TimelineShowcase, FeatureGrid } from '@/components/landing/LandingComponents';
+import Link from 'next/link';
+import { 
+  LandingNav, 
+  LandingHero, 
+  BentoFeatures, 
+  FutureShowcase, 
+  PricingSection 
+} from '@/components/landing/LandingComponents';
 import '@/app/landing.css';
 
 export default function Home() {
   return (
     <div className="landing-body min-h-screen">
-      {/* Meta/Head simulation via Next.js metadata is handled in Layout, but we ensure styles */}
+      {/* Fonts */}
       <link 
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" 
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" 
         rel="stylesheet" 
       />
       
       <LandingNav />
       
       <main>
-        <LandingHero graphicUrl="/callme-hero.png" />
+        <LandingHero />
         
-        <TimelineShowcase />
+        <BentoFeatures />
         
-        <FeatureGrid />
+        <FutureShowcase />
+        
+        <PricingSection />
         
         {/* Final CTA Section */}
-        <section className="py-24 border-t border-slate-100 bg-white relative overflow-hidden">
-          <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
-          <div className="container mx-auto px-6 text-center animate-slide-up">
-            <h2 className="text-4xl md:text-5xl font-medium mb-8 serif-heading tracking-tight">
-              Reclaim your focus. <br />
-              <span className="text-slate-400">Claim your schedule.</span>
+        <section className="py-60 bg-white relative overflow-hidden">
+          <div className="container mx-auto px-6 text-center relative z-10">
+            <h2 className="text-6xl md:text-9xl font-black grotesque-heading mb-16 tracking-tighter">
+              TIME TO <br />
+              <span className="text-blue-600">GO PRO.</span>
             </h2>
-            <p className="text-lg text-slate-500 mb-12 max-w-xl mx-auto">
-              Join the most organized professionals who trust callme to handle their time. Simple, secure, and automated.
-            </p>
             <div className="flex justify-center">
-              <a href="/login" className="btn-planner-primary rounded-none px-12 py-4">
-                Get Started with callme
-              </a>
+              <Link href="/login" className="btn-pill btn-pill-primary px-16 py-8 text-2xl">
+                Claim Your link
+              </Link>
             </div>
+            <p className="mt-12 text-slate-400 font-bold uppercase tracking-widest text-[11px]">Free during early beta. limited slots remaining.</p>
           </div>
         </section>
       </main>
 
-      <footer className="py-12 border-t border-slate-100 bg-slate-50/50">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm text-slate-400 font-medium">
-          <div className="serif-heading text-lg text-slate-900 mb-4 md:mb-0">callme</div>
-          <div className="flex space-x-8 mb-4 md:mb-0">
-            <a href="#" className="hover:text-slate-600">Privacy</a>
-            <a href="#" className="hover:text-slate-600">Terms</a>
-            <a href="#" className="hover:text-slate-600">Security</a>
+      <footer className="py-32 bg-white border-t border-slate-100">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-400 font-bold">
+            <div className="grotesque-heading text-3xl text-slate-900 mb-12 md:mb-0">callme</div>
+            <div className="flex space-x-12 mb-12 md:md-0">
+              <Link href="/privacy" className="hover:text-blue-600 transition-colors uppercase tracking-widest text-[11px]">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-blue-600 transition-colors uppercase tracking-widest text-[11px]">Terms of Service</Link>
+              <a href="mailto:hello@callme.com" className="hover:text-blue-600 transition-colors uppercase tracking-widest text-[11px]">Contact</a>
+            </div>
+            <div className="uppercase tracking-widest text-[11px]">© {new Date().getFullYear()} callme. Master your time.</div>
           </div>
-          <div>© {new Date().getFullYear()} callme. All rights reserved.</div>
         </div>
       </footer>
     </div>
   );
 }
+
+
