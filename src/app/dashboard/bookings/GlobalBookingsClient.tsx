@@ -61,15 +61,22 @@ export default function GlobalBookingsClient({ initialBookings }: { initialBooki
                       Meet
                     </a>
                   ) : '-'}
+                  <div className="mt-1 flex flex-col gap-1">
+                    <a href={`/reschedule/${booking.cancellation_token}`} target="_blank" className="text-[10px] text-slate-400 hover:text-indigo-600 font-bold uppercase tracking-wider">Reschedule Link</a>
+                    <a href={`/cancel/${booking.cancellation_token}`} target="_blank" className="text-[10px] text-slate-400 hover:text-rose-600 font-bold uppercase tracking-wider">Cancel Link</a>
+                  </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 flex flex-col gap-2">
                   {booking.status === 'confirmed' && (
-                    <Button variant="ghost" size="sm" onClick={async () => {
-                       if (confirm('Cancel this booking?')) {
-                         await fetch('/api/cancel', { method: 'POST', body: JSON.stringify({ token: booking.cancellation_token }) });
-                         setBookings(bookings.map(b => b.id === booking.id ? { ...b, status: 'cancelled' } : b));
-                       }
-                    }}>Cancel</Button>
+                    <>
+                      <Button variant="outline" size="sm" className="text-[10px] h-7" onClick={() => window.open(`/reschedule/${booking.cancellation_token}`, '_blank')}>Reschedule</Button>
+                      <Button variant="ghost" size="sm" className="text-[10px] h-7 text-rose-500" onClick={async () => {
+                        if (confirm('Cancel this booking?')) {
+                          await fetch('/api/cancel', { method: 'POST', body: JSON.stringify({ token: booking.cancellation_token }) });
+                          setBookings(bookings.map(b => b.id === booking.id ? { ...b, status: 'cancelled' } : b));
+                        }
+                      }}>Cancel</Button>
+                    </>
                   )}
                 </td>
               </tr>

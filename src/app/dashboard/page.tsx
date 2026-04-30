@@ -25,15 +25,15 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Your Calendars</h1>
-          <p className="text-sm text-slate-500">Manage your booking types and availability</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 grotesque-heading">Your Call Pages</h1>
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">Manage your booking types and availability</p>
         </div>
         <Link href="/dashboard/calendar/new">
           <Button>
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
-            New Calendar
+            New Call Page
           </Button>
         </Link>
       </div>
@@ -51,10 +51,10 @@ export default async function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-slate-900">No calendars yet</h3>
-          <p className="text-sm text-slate-500 mb-6 max-w-xs">Create your first booking page to start accepting appointments.</p>
+          <h3 className="text-lg font-bold text-slate-900">No call pages yet</h3>
+          <p className="text-sm text-slate-500 mb-6 max-w-xs">Create your first public booking page to start accepting appointments.</p>
           <Link href="/dashboard/calendar/new">
-            <Button variant="outline">Create a Calendar</Button>
+            <Button variant="outline" className="font-bold">Create a Call Page</Button>
           </Link>
         </Card>
       ) : (
@@ -63,10 +63,10 @@ export default async function DashboardPage() {
             <Card key={calendar.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="font-black text-lg text-slate-900 group-hover:text-blue-600 transition-colors grotesque-heading tracking-tight">
                     {calendar.name}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">/{calendar.slug}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5 tracking-wider">/{calendar.slug}</p>
                 </div>
                 <div className={calendar.is_active ? "w-2 h-2 rounded-full bg-emerald-500" : "w-2 h-2 rounded-full bg-slate-300"} title={calendar.is_active ? "Active" : "Inactive"}></div>
               </div>

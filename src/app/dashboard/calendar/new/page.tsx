@@ -19,6 +19,8 @@ export default function NewCalendarPage() {
     max_attendees: 1,
     slot_duration_minutes: 30,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    meeting_provider: 'google_meet',
+    calendar_sync_provider: 'google',
   });
 
   const handleNameChange = (name: string) => {
@@ -140,6 +142,33 @@ export default function NewCalendarPage() {
                 ))}
               </select>
               <p className="text-xs text-slate-400 italic">Availability rules will be based on this timezone.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Meeting Location / Provider</label>
+                <select
+                  className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  value={formData.meeting_provider}
+                  onChange={(e) => setFormData({ ...formData, meeting_provider: e.target.value as any })}
+                >
+                  <option value="google_meet">Google Meet</option>
+                  <option value="zoom">Zoom</option>
+                  <option value="ms_teams">Microsoft Teams</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Calendar Sync Provider</label>
+                <select
+                  className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  value={formData.calendar_sync_provider}
+                  onChange={(e) => setFormData({ ...formData, calendar_sync_provider: e.target.value as any })}
+                >
+                  <option value="google">Google Calendar</option>
+                  <option value="outlook">Outlook</option>
+                </select>
+              </div>
             </div>
           </div>
 

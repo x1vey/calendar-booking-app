@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, slug, description, call_type, max_attendees, slot_duration_minutes, timezone } = body;
+  const { name, slug, description, call_type, max_attendees, slot_duration_minutes, timezone, meeting_provider, calendar_sync_provider } = body;
 
   const { data: calendar, error } = await supabase
     .from('calendars')
@@ -44,6 +44,8 @@ export async function POST(request: NextRequest) {
       slot_duration_minutes,
       timezone,
       user_id: user.id,
+      meeting_provider: meeting_provider || 'google_meet',
+      calendar_sync_provider: calendar_sync_provider || 'google',
     })
     .select()
     .single();

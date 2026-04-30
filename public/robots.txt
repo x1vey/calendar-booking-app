@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://callme.hisubhadeep.com
+
+# Sitemaps
+Sitemap: https://callme.hisubhadeep.com/sitemap.xml

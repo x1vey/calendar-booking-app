@@ -14,7 +14,7 @@ export function getOAuth2Client() {
 export function getAuthUrl(state: string) {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    prompt: 'consent',
+    prompt: 'consent select_account',
     scope: [
       'https://www.googleapis.com/auth/calendar.events',
       'https://www.googleapis.com/auth/calendar.readonly',
@@ -44,37 +44,47 @@ export async function createCalendarEvent(refreshToken: string, eventData: {
   end: string;
   attendees: { email: string }[];
   timezone: string;
+  location?: string;
+  description?: string;
+  useMeet?: boolean;
 }) {
   const calendar = getAuthenticatedCalendar(refreshToken);
   
-  const response = await calendar.events.insert({
-    calendarId: 'primary',
-    conferenceDataVersion: 1,
-    requestBody: {
-      summary: eventData.summary,
-      start: {
-        dateTime: eventData.start,
-        timeZone: eventData.timezone,
-      },
-      end: {
-        dateTime: eventData.end,
-        timeZone: eventData.timezone,
-      },
-      attendees: eventData.attendees,
-      conferenceData: {
-        createRequest: {
-          requestId: uuidv4(),
-          conferenceSolutionKey: {
-            type: 'hangoutsMeet',
-          },
+  const requestBody: any = {
+    summary: eventData.summary,
+    start: {
+       dateTime: eventData.start,
+       timeZone: eventData.timezone,
+    },
+    end: {
+       dateTime: eventData.end,
+       timeZone: eventData.timezone,
+    },
+    attendees: eventData.attendees,
+    location: eventData.location,
+    description: eventData.description,
+  };
+
+  if (eventData.useMeet) {
+    requestBody.conferenceData = {
+      createRequest: {
+        requestId: uuidv4(),
+        conferenceSolutionKey: {
+          type: 'hangoutsMeet',
         },
       },
-    },
+    };
+  }
+
+  const response = await calendar.events.insert({
+    calendarId: 'primary',
+    conferenceDataVersion: eventData.useMeet ? 1 : 0,
+    requestBody,
   });
 
   return {
     eventId: response.data.id,
-    meetLink: response.data.hangoutLink,
+    meetLink: eventData.useMeet ? response.data.hangoutLink : eventData.location,
   };
 }
 

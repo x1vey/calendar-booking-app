@@ -23,12 +23,11 @@ export default async function CustomersPage() {
 
   const calendarIds = calendars.map(c => c.id);
 
-  // Fetch all confirmed bookings for these calendars to determine unique customers
+  // Fetch all bookings (even cancelled) for these calendars to determine unique customers
   const { data: bookings } = await supabase
     .from('bookings')
     .select('booker_email, booker_name, start_time')
     .in('calendar_id', calendarIds)
-    .eq('status', 'confirmed')
     .order('start_time', { ascending: false });
 
   // Aggregate unique customers
@@ -36,7 +35,7 @@ export default async function CustomersPage() {
 
   if (bookings) {
     bookings.forEach(booking => {
-      const email = booking.booker_email;
+      const email = (booking.booker_email || '').toLowerCase().trim();
       if (!customersMap.has(email)) {
         customersMap.set(email, {
           email: email,

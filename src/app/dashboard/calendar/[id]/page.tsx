@@ -9,11 +9,12 @@ import { TIMEZONES } from '@/lib/timezone';
 import { Calendar, EmailTemplate, Booking } from '@/lib/types';
 import AvailabilityEditor from '@/components/AvailabilityEditor';
 import EmailEditor from '@/components/EmailEditor';
+import LandingPageEditor from '@/components/LandingPageEditor';
 
 export default function CalendarDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'settings' | 'availability' | 'email' | 'bookings'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'landing_page' | 'availability' | 'email' | 'bookings'>('settings');
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,11 +23,10 @@ export default function CalendarDetailPage() {
   useEffect(() => {
     async function fetchCalendar() {
       try {
-        const res = await fetch(`/api/admin/calendars`);
+        const res = await fetch(`/api/admin/calendars/${id}`);
+        if (!res.ok) throw new Error('Calendar not found');
         const data = await res.json();
-        const found = data.find((c: Calendar) => c.id === id);
-        if (found) setCalendar(found);
-        else throw new Error('Calendar not found');
+        setCalendar(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -80,7 +80,7 @@ export default function CalendarDetailPage() {
       </div>
 
       <div className="flex space-x-1 border-b border-slate-200">
-        {(['settings', 'availability', 'email', 'bookings'] as const).map((tab) => (
+        {(['settings', 'landing_page', 'availability', 'email', 'bookings'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -90,7 +90,7 @@ export default function CalendarDetailPage() {
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
-            {tab}
+            {tab === 'landing_page' ? 'Landing Page' : tab}
           </button>
         ))}
       </div>
@@ -164,7 +164,30 @@ export default function CalendarDetailPage() {
                     ))}
                   </select>
                 </div>
-                <div className="flex items-center space-x-2 pt-6">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Meeting Location / Provider</label>
+                  <select
+                    className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    value={calendar.meeting_provider || 'google_meet'}
+                    onChange={(e) => setCalendar({ ...calendar, meeting_provider: e.target.value as any })}
+                  >
+                    <option value="google_meet">Google Meet</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="ms_teams">Microsoft Teams</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Calendar Sync Provider</label>
+                  <select
+                    className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    value={calendar.calendar_sync_provider || 'google'}
+                    onChange={(e) => setCalendar({ ...calendar, calendar_sync_provider: e.target.value as any })}
+                  >
+                    <option value="google">Google Calendar</option>
+                    <option value="outlook">Outlook</option>
+                  </select>
+                </div>
+                <div className="flex items-center space-x-2 pt-6 md:col-span-2">
                    <input
                     type="checkbox"
                     id="is_active"
@@ -185,6 +208,7 @@ export default function CalendarDetailPage() {
         )}
 
         {/* Other tabs will be implemented as sub-components or blocks */}
+        {activeTab === 'landing_page' && <LandingPageEditor calendar={calendar} onUpdate={setCalendar} />}
         {activeTab === 'availability' && <AvailabilityEditor calendarId={id as string} />}
         {activeTab === 'email' && <EmailEditor calendar={calendar} onUpdate={setCalendar} />}
         {activeTab === 'bookings' && <BookingsSection calendarId={id as string} />}
@@ -283,15 +307,22 @@ function BookingsSection({ calendarId }: { calendarId: string }) {
                   {booking.meet_link ? (
                     <a href={booking.meet_link} target="_blank" className="text-indigo-600 hover:underline">Meet</a>
                   ) : '-'}
+                  <div className="mt-1 flex flex-col gap-1">
+                    <a href={`/reschedule/${booking.cancellation_token}`} target="_blank" className="text-[10px] text-slate-400 hover:text-indigo-600 font-bold uppercase tracking-wider">Reschedule Link</a>
+                    <a href={`/cancel/${booking.cancellation_token}`} target="_blank" className="text-[10px] text-slate-400 hover:text-rose-600 font-bold uppercase tracking-wider">Cancel Link</a>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   {booking.status === 'confirmed' && (
-                    <Button variant="ghost" size="sm" onClick={async () => {
-                       if (confirm('Cancel this booking?')) {
-                         await fetch('/api/cancel', { method: 'POST', body: JSON.stringify({ token: booking.cancellation_token }) });
-                         setBookings(bookings.map(b => b.id === booking.id ? { ...b, status: 'cancelled' } : b));
-                       }
-                    }}>Cancel</Button>
+                    <div className="flex flex-col gap-2">
+                       <Button variant="outline" size="sm" className="text-[10px] h-7" onClick={() => window.open(`/reschedule/${booking.cancellation_token}`, '_blank')}>Reschedule</Button>
+                       <Button variant="ghost" size="sm" className="text-[10px] h-7 text-rose-500" onClick={async () => {
+                          if (confirm('Cancel this booking?')) {
+                            await fetch('/api/cancel', { method: 'POST', body: JSON.stringify({ token: booking.cancellation_token }) });
+                            setBookings(bookings.map(b => b.id === booking.id ? { ...b, status: 'cancelled' } : b));
+                          }
+                       }}>Cancel</Button>
+                    </div>
                   )}
                 </td>
               </tr>

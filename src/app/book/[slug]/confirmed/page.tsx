@@ -43,8 +43,8 @@ export default function ConfirmedPage() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Booking Confirmed!</h1>
-          <p className="text-slate-500">You're all set. A calendar invitation has been sent to your email.</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter grotesque-heading uppercase">Booking Confirmed!</h1>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[11px] mt-2">You're all set. A calendar invitation has been sent to your email.</p>
         </div>
 
         {booking && (
@@ -62,11 +62,28 @@ export default function ConfirmedPage() {
           </div>
         )}
 
-        <div className="pt-4 space-y-3">
-          <Button className="w-full" size="lg">Add to Google Calendar</Button>
-          <p className="text-xs text-slate-400">
-            Need to change something? Check your confirmation email for the cancellation link.
-          </p>
+        <div className="pt-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+             <Button 
+                variant="outline" 
+                className="rounded-xl font-bold uppercase tracking-widest text-[11px]"
+                onClick={() => window.location.href = `/reschedule/${booking.cancellation_token}`}
+              >
+                Reschedule
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="rounded-xl font-bold uppercase tracking-widest text-[11px] text-rose-500 hover:bg-rose-50 hover:text-rose-600 border border-slate-100"
+                onClick={() => window.location.href = `/cancel/${booking.cancellation_token}`}
+              >
+                Cancel
+              </Button>
+          </div>
+          
+          <div className="pt-4 border-t border-slate-100">
+             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-3">Sync to Calendar</p>
+             <Button className="w-full rounded-2xl h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.1em]">Add to Google Calendar</Button>
+          </div>
         </div>
       </Card>
     </div>

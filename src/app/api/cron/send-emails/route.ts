@@ -76,9 +76,44 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // 3. Review Requests
+  const { data: reviewBookings } = await supabase
+    .from('bookings')
+    .select('*, calendars(*)')
+    .eq('status', 'confirmed')
+    .eq('review_request_sent', false);
+
+  let reviewCount = 0;
+  if (reviewBookings) {
+    for (const booking of reviewBookings) {
+      // Only process if the calendar actually has a Google Review URL set
+      if (!booking.calendars?.google_review_url) continue;
+
+      const { data: template } = await supabase
+        .from('email_templates')
+        .select('*')
+        .eq('calendar_id', booking.calendar_id)
+        .eq('type', 'review_request')
+        .eq('is_active', true)
+        .single();
+
+      if (template) {
+        // e.g., send_offset_minutes = 30 means 30 min after call ends
+        const triggerTime = addMinutes(new Date(booking.end_time), template.send_offset_minutes);
+
+        if (isBefore(triggerTime, now)) {
+          await sendBookingEmail(booking, booking.calendars, 'review_request');
+          await supabase.from('bookings').update({ review_request_sent: true }).eq('id', booking.id);
+          reviewCount++;
+        }
+      }
+    }
+  }
+
   return NextResponse.json({
     success: true,
     remindersSent: reminderCount,
-    followupsSent: followupCount
+    followupsSent: followupCount,
+    reviewsSent: reviewCount
   });
 }

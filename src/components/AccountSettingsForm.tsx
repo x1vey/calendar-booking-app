@@ -9,6 +9,13 @@ interface Settings {
   google_refresh_token: string | null;
   smtp_user: string | null;
   smtp_pass: string | null;
+  avatar_url?: string | null;
+  about_me?: string | null;
+  display_name?: string | null;
+  notification_email?: string | null;
+  zoom_refresh_token?: string | null;
+  microsoft_refresh_token?: string | null;
+  slack_webhook_url?: string | null;
 }
 
 export default function AccountSettingsForm({ initialSettings, userId }: { initialSettings: Settings | null, userId: string }) {
@@ -16,8 +23,27 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
     google_refresh_token: null,
     smtp_user: '',
     smtp_pass: '',
+    avatar_url: '',
+    about_me: '',
+    display_name: '',
+    notification_email: '',
+    zoom_refresh_token: null,
+    microsoft_refresh_token: null,
+    slack_webhook_url: '',
   });
   const [saving, setSaving] = useState(false);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('microsoft_connected')) {
+      alert('Microsoft account connected successfully!');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('error')) {
+      alert(`Error: ${params.get('error')}`);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +55,11 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
         body: JSON.stringify({
           smtp_user: settings.smtp_user,
           smtp_pass: settings.smtp_pass,
+          avatar_url: settings.avatar_url,
+          about_me: settings.about_me,
+          display_name: settings.display_name,
+          notification_email: settings.notification_email,
+          slack_webhook_url: settings.slack_webhook_url,
         }),
       });
       alert('Settings saved!');
@@ -53,8 +84,90 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
     }
   };
 
+  const handleDisconnectZoom = async () => {
+    if (!confirm('Are you sure you want to disconnect Zoom? New bookings using Zoom will fail.')) return;
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zoom_refresh_token: null }),
+      });
+      setSettings({ ...settings, zoom_refresh_token: null });
+    } catch (err) {
+      alert('Failed to disconnect Zoom');
+    }
+  };
+
+  const handleDisconnectMicrosoft = async () => {
+    if (!confirm('Are you sure you want to disconnect Microsoft? Teams meetings and Outlook sync will stop.')) return;
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ microsoft_refresh_token: null }),
+      });
+      setSettings({ ...settings, microsoft_refresh_token: null });
+    } catch (err) {
+      alert('Failed to disconnect Microsoft');
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Profile Settings */}
+      <Card className="p-8">
+        <form onSubmit={handleSave} className="space-y-6">
+           <div className="space-y-1">
+             <h3 className="text-lg font-semibold text-slate-900">External Profile</h3>
+             <p className="text-sm text-slate-500">How you appear on your booking pages.</p>
+           </div>
+           
+           <div className="flex flex-col md:flex-row gap-6 items-start">
+             <div className="shrink-0 space-y-2 text-center w-full md:w-32">
+                <div className="w-24 h-24 mx-auto rounded-full bg-slate-100 overflow-hidden border-2 border-white shadow-md flex items-center justify-center">
+                  {settings.avatar_url ? (
+                    <img src={settings.avatar_url} alt="Avatar Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <svg className="w-10 h-10 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  )}
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview</div>
+             </div>
+             
+             <div className="flex-1 w-full space-y-4">
+                <Input 
+                  label="Display Name" 
+                  placeholder="Your Name"
+                  value={settings.display_name || ''}
+                  onChange={(e) => setSettings({ ...settings, display_name: e.target.value })}
+                />
+                <Input 
+                  label="Avatar URL" 
+                  placeholder="https://example.com/avatar.jpg"
+                  value={settings.avatar_url || ''}
+                  onChange={(e) => setSettings({ ...settings, avatar_url: e.target.value })}
+                />
+             </div>
+           </div>
+
+           <div className="space-y-1.5 pt-2">
+              <label className="text-sm font-medium text-slate-700">About Me</label>
+              <textarea
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none min-h-[100px]"
+                placeholder="A short bio to display on your landing page..."
+                value={settings.about_me || ''}
+                onChange={(e) => setSettings({ ...settings, about_me: e.target.value })}
+              />
+           </div>
+           
+           <div className="pt-4 flex justify-end border-t border-slate-100 mt-6">
+             <Button type="submit" disabled={saving}>
+               {saving ? 'Saving...' : 'Save Profile'}
+             </Button>
+           </div>
+        </form>
+      </Card>
+
       {/* Google Calendar Connection */}
       <Card className="p-8 space-y-6">
         <div className="flex items-center justify-between">
@@ -121,6 +234,70 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
         )}
       </Card>
 
+      {/* Zoom Connection */}
+      <Card className="p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold text-slate-900">Zoom Setup</h3>
+            <p className="text-sm text-slate-500 max-w-md">
+              Connect your Zoom account to automatically generate Zoom meetings for new bookings.
+            </p>
+          </div>
+          {!settings.zoom_refresh_token ? (
+            <Button onClick={() => window.location.href = `/api/zoom/connect?userId=${userId}`}>
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4.585 13.607l-.27-.012H1.886l3.236-3.164.005-.005a.83.83 0 00.127-1.002.825.825 0 00-.705-.401H.857A.858.858 0 000 9.878v4.244c0 .474.385.858.857.858h3.766a.823.823 0 00.596-.245.856.856 0 00.222-.596v-.53a.856.856 0 00-.856-.855h-.002zM23.143 9.022L18.8 11.23a.846.846 0 00-.458.749v1.942a.853.853 0 00.449.754l4.348 2.228v-7.88zm-5.632-1.28c0-.62-.511-1.127-1.139-1.127l-5.636.002v8.528h2.09c.621 0 1.135-.512 1.138-1.14l.006-5.06h3.541v-1.203zM13.273 6.613l-5.65.002C7 6.615 6.49 7.126 6.49 7.749v5.044h3.535v1.203c0 .62.51 1.127 1.139 1.127h5.636V6.613h-3.527z"/>
+              </svg>
+              Connect Zoom
+            </Button>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center text-emerald-600 font-bold text-sm">
+                <svg className="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Connected
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => window.location.href = `/api/zoom/connect?userId=${userId}`}>
+                Reconnect
+              </Button>
+              <Button variant="ghost" size="sm" className="text-rose-500 hover:text-rose-600 hover:bg-rose-50" onClick={handleDisconnectZoom}>
+                Disconnect
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Microsoft Connection */}
+      <Card className="p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold text-slate-900">Microsoft Teams & Outlook</h3>
+            <p className="text-sm text-slate-500 max-w-md">
+              Connect your Microsoft account to generate Teams meetings and check Outlook availability.
+            </p>
+          </div>
+          {!settings.microsoft_refresh_token ? (
+            <Button onClick={() => window.location.href = `/api/microsoft/connect?userId=${userId}`}>
+              Connect Microsoft
+            </Button>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center text-emerald-600 font-bold text-sm">
+                Connected
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => window.location.href = `/api/microsoft/connect?userId=${userId}`}>
+                Reconnect
+              </Button>
+              <Button variant="ghost" size="sm" className="text-rose-500 hover:text-rose-600 hover:bg-rose-50" onClick={handleDisconnectMicrosoft}>
+                Disconnect
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
+
       {/* SMTP Settings */}
       <Card className="p-8">
         <form onSubmit={handleSave} className="space-y-6">
@@ -160,6 +337,59 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
            <div className="pt-4 flex justify-end">
              <Button type="submit" disabled={saving}>
                {saving ? 'Saving...' : 'Save Email Settings'}
+             </Button>
+           </div>
+        </form>
+      </Card>
+
+      {/* Slack Webhook Settings */}
+      <Card className="p-8">
+        <form onSubmit={handleSave} className="space-y-6">
+           <div className="space-y-1">
+             <h3 className="text-lg font-semibold text-slate-900">Slack Notifications</h3>
+             <p className="text-sm text-slate-500">Paste your Incoming Webhook URL to get instant Slack notifications when a new booking is made.</p>
+           </div>
+           
+           <div className="max-w-xl">
+              <Input 
+                label="Slack Webhook URL" 
+                placeholder="https://hooks.slack.com/services/..."
+                value={settings.slack_webhook_url || ''}
+                onChange={(e) => setSettings({ ...settings, slack_webhook_url: e.target.value })}
+              />
+           </div>
+           
+           <div className="pt-4 flex justify-end border-t border-slate-100 mt-6">
+             <Button type="submit" disabled={saving}>
+               {saving ? 'Saving...' : 'Save Slack Settings'}
+             </Button>
+           </div>
+        </form>
+      </Card>
+
+      {/* Admin Reminders */}
+      <Card className="p-8">
+        <form onSubmit={handleSave} className="space-y-6">
+           <div className="space-y-1">
+             <h3 className="text-lg font-semibold text-slate-900">Admin System Health</h3>
+             <p className="text-sm text-slate-500">Receive critical alerts about your account (e.g. Google Calendar token expiration or rotation issues).</p>
+           </div>
+           
+           <div className="max-w-md">
+              <Input 
+                label="Admin Notification Email" 
+                placeholder="personal@email.com"
+                value={settings.notification_email || ''}
+                onChange={(e) => setSettings({ ...settings, notification_email: e.target.value })}
+              />
+              <p className="mt-2 text-xs text-slate-400 italic">
+                * This email is only used for system-level alerts and will not be shown to customers.
+              </p>
+           </div>
+           
+           <div className="pt-4 flex justify-end border-t border-slate-100">
+             <Button type="submit" disabled={saving}>
+               {saving ? 'Saving...' : 'Save Admin Alerts'}
              </Button>
            </div>
         </form>

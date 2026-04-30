@@ -20,12 +20,15 @@ export async function GET(
 
   // Sanitize data before returning publicly
   return NextResponse.json({
+    id: booking.id,
+    cancellation_token: booking.cancellation_token,
     start_time: booking.start_time,
     end_time: booking.end_time,
     booker_timezone: booking.booker_timezone,
     meet_link: booking.meet_link,
     calendar: {
         name: booking.calendars?.name,
+        slug: booking.calendars?.slug,
         timezone: booking.calendars?.timezone,
     }
   });

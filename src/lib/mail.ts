@@ -60,6 +60,7 @@ export async function sendBookingEmail(
   calendar: Calendar,
   type: EmailTemplateType,
   cancelUrl?: string,
+  rescheduleUrl?: string,
   creds?: { smtpUser?: string | null, smtpPass?: string | null }
 ) {
   const supabase = createAdminClient();
@@ -101,6 +102,8 @@ export async function sendBookingEmail(
     timezone: booking.booker_timezone,
     meet_link: booking.meet_link || 'Link will be generated',
     cancel_url: cancelUrl || '',
+    reschedule_url: rescheduleUrl || '',
+    google_review_url: calendar.google_review_url || '',
   };
 
   // 4. Render and Send

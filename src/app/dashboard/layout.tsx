@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import '@/app/landing.css';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -16,57 +17,65 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 landing-body">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-200 bg-white group hover:w-64 transition-all overflow-hidden lg:static">
         <div className="flex h-full flex-col px-3 py-4">
-          <div className="mb-8 px-2 flex items-center space-x-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">C</div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">Booker</span>
+          <div className="mb-8 px-2 flex items-center space-x-2 mt-2">
+            <span className="text-3xl font-black tracking-tighter grotesque-heading">callme</span>
           </div>
 
           <nav className="flex-1 space-y-1">
             <Link
               href="/dashboard"
-              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 group"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
             >
-              <svg className="mr-3 h-5 w-5 text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               Dashboard
             </Link>
             <Link
-              href="/dashboard/bookings"
-              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 group"
+              href="/dashboard/my-calendar"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
             >
-              <svg className="mr-3 h-5 w-5 text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              My Calendar
+            </Link>
+            <Link
+              href="/dashboard/bookings"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
+            >
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               Bookings
             </Link>
             <Link
               href="/dashboard/customers"
-              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 group"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
             >
-              <svg className="mr-3 h-5 w-5 text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
               Customers
             </Link>
             <Link
               href="/dashboard/emails"
-              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 group"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
             >
-              <svg className="mr-3 h-5 w-5 text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               Emails
             </Link>
             <Link
               href="/dashboard/settings"
-              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 group"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
             >
-              <svg className="mr-3 h-5 w-5 text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
               Settings

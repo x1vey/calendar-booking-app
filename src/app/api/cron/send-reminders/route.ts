@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const trigger24h = addDays(now, 1);
     if (!booking.rem_1d_client_sent && isAfter(trigger24h, startTime)) {
       try {
-        const sent = await sendBookingEmail(booking, calendar, 'client_reminder_1d', cancelUrl, { smtpUser, smtpPass });
+        const sent = await sendBookingEmail(booking, calendar, 'client_reminder_1d', cancelUrl, undefined, { smtpUser, smtpPass });
         if (sent) {
           await supabase.from('bookings').update({ rem_1d_client_sent: true }).eq('id', booking.id);
           results.sent_24h_client++;
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     const trigger5m = addMinutes(now, 6); // Look slightly ahead to catch it
     if (!booking.rem_5m_client_sent && isAfter(trigger5m, startTime)) {
       try {
-        const sent = await sendBookingEmail(booking, calendar, 'client_reminder_5m', cancelUrl, { smtpUser, smtpPass });
+        const sent = await sendBookingEmail(booking, calendar, 'client_reminder_5m', cancelUrl, undefined, { smtpUser, smtpPass });
         if (sent) {
           await supabase.from('bookings').update({ rem_5m_client_sent: true }).eq('id', booking.id);
           results.sent_5m_client++;
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     // --- CASE C: 5-Min User (Host) Reminder ---
     if (!booking.rem_5m_user_sent && isAfter(trigger5m, startTime)) {
       try {
-        const sent = await sendBookingEmail(booking, calendar, 'user_reminder_5m', undefined, { smtpUser, smtpPass });
+        const sent = await sendBookingEmail(booking, calendar, 'user_reminder_5m', undefined, undefined, { smtpUser, smtpPass });
         if (sent) {
           await supabase.from('bookings').update({ rem_5m_user_sent: true }).eq('id', booking.id);
           results.sent_5m_user++;

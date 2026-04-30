@@ -82,32 +82,46 @@ export async function generateAvailableSlots(
     .gte('start_time', startOfDay(date).toISOString())
     .lte('start_time', endOfDay(date).toISOString());
 
-  // 6. Google Calendar Free/Busy check
+  // 6. External Calendar Free/Busy check
   let busyRanges: { start: string; end: string }[] = [];
-  const activeToken = googleToken || null;
 
-  console.log(`[SLOTS DEBUG] Google token for free/busy: ${activeToken ? 'YES' : 'NULL'}`);
-
-  if (activeToken) {
+  if (calendar.calendar_sync_provider === 'outlook') {
     try {
       const queryStart = startOfDay(date).toISOString();
       const queryEnd = endOfDay(date).toISOString();
-      console.log(`[SLOTS DEBUG] Querying Google free/busy: ${queryStart} → ${queryEnd}`);
-
-      const busy = await getFreeBusy(activeToken, queryStart, queryEnd);
-      console.log(`[SLOTS DEBUG] Google free/busy raw response:`, JSON.stringify(busy));
-
-      // Filter out invalid busy periods and ensure they are typed as {start: string, end: string}
-      busyRanges = (busy || [])
-        .filter(b => b.start && b.end)
-        .map(b => ({ start: b.start as string, end: b.end as string }));
-
-      console.log(`[SLOTS DEBUG] Parsed ${busyRanges.length} busy ranges:`, JSON.stringify(busyRanges));
+      console.log(`[SLOTS DEBUG] Querying Outlook free/busy: ${queryStart} → ${queryEnd}`);
+      const { getOutlookFreeBusy } = await import('@/lib/microsoft');
+      busyRanges = await getOutlookFreeBusy(calendar.user_id, queryStart, queryEnd, 'UTC');
+      console.log(`[SLOTS DEBUG] Parsed ${busyRanges.length} Outlook busy ranges:`, JSON.stringify(busyRanges));
     } catch (e: any) {
-      console.error('[SLOTS DEBUG] Failed to fetch free/busy:', e?.message || e);
+      console.error('[SLOTS DEBUG] Failed to fetch Outlook free/busy:', e?.message || e);
     }
   } else {
-    console.log('[SLOTS DEBUG] Skipping Google free/busy check — no token available');
+    const activeToken = googleToken || null;
+
+    console.log(`[SLOTS DEBUG] Google token for free/busy: ${activeToken ? 'YES' : 'NULL'}`);
+
+    if (activeToken) {
+      try {
+        const queryStart = startOfDay(date).toISOString();
+        const queryEnd = endOfDay(date).toISOString();
+        console.log(`[SLOTS DEBUG] Querying Google free/busy: ${queryStart} → ${queryEnd}`);
+
+        const busy = await getFreeBusy(activeToken, queryStart, queryEnd);
+        console.log(`[SLOTS DEBUG] Google free/busy raw response:`, JSON.stringify(busy));
+
+        // Filter out invalid busy periods and ensure they are typed as {start: string, end: string}
+        busyRanges = (busy || [])
+          .filter(b => b.start && b.end)
+          .map(b => ({ start: b.start as string, end: b.end as string }));
+
+        console.log(`[SLOTS DEBUG] Parsed ${busyRanges.length} busy ranges:`, JSON.stringify(busyRanges));
+      } catch (e: any) {
+        console.error('[SLOTS DEBUG] Failed to fetch Google free/busy:', e?.message || e);
+      }
+    } else {
+      console.log('[SLOTS DEBUG] Skipping Google free/busy check — no token available');
+    }
   }
 
   // 7. Filter slots — remove any that conflict with bookings or Google busy times
@@ -125,14 +139,14 @@ export async function generateAvailableSlots(
     if (internalConflict && calendar.call_type === 'one_on_one') return false;
     // For group calls, we would count attendees here. Simplified for now.
 
-    // Check Google Calendar busy ranges
-    const gCalConflict = busyRanges.some(busy => {
+    // Check External Calendar busy ranges
+    const externalConflict = busyRanges.some(busy => {
       const bStart = new Date(busy.start);
       const bEnd = new Date(busy.end);
       return isBefore(slot.start, bEnd) && isAfter(slot.end, bStart);
     });
 
-    if (gCalConflict) return false;
+    if (externalConflict) return false;
 
     return true;
   }).map(slot => ({

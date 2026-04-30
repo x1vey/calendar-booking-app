@@ -41,7 +41,9 @@ export async function GET(
     'client_reminder_1d',
     'client_reminder_5m',
     'user_reminder_5m',
-    'cancellation'
+    'cancellation',
+    'reschedule_confirmation',
+    'user_reschedule_alert'
   ];
 
   const existingTypes = templates.map(t => t.type);
@@ -61,6 +63,12 @@ export async function GET(
       } else if (type === 'client_reminder_5m' || type === 'user_reminder_5m') {
         subject = 'Starting in 5 min: {{calendar_name}}';
         body = '<p>The meeting is starting soon!</p><p><strong>Join here:</strong> {{meet_link}}</p>';
+      } else if (type === 'reschedule_confirmation') {
+        subject = 'Meeting Rescheduled: {{calendar_name}}';
+        body = '<p>Hi {{booker_name}},</p><p>Your meeting has been rescheduled to <strong>{{start_time}}</strong>.</p><p><strong>New Link:</strong> {{meet_link}}</p>';
+      } else if (type === 'user_reschedule_alert') {
+        subject = 'Rescheduled: {{booker_name}}';
+        body = '<p>A booking has been rescheduled.</p><p><strong>Booker:</strong> {{booker_name}}</p><p><strong>New Time:</strong> {{start_time}}</p>';
       }
 
       return {

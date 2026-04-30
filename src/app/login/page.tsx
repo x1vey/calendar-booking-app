@@ -40,6 +40,10 @@ export default function LoginPage() {
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          prompt: 'consent', // Use 'consent' to update permissions, or remove it to allow auto-login
+          access_type: 'offline',
+        }
       },
     });
 
