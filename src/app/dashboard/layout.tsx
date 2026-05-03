@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import '@/app/landing.css';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -17,12 +16,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 landing-body">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-200 bg-white group hover:w-64 transition-all overflow-hidden lg:static">
         <div className="flex h-full flex-col px-3 py-4">
           <div className="mb-8 px-2 flex items-center space-x-2 mt-2">
-            <span className="text-3xl font-black tracking-tighter grotesque-heading">callme</span>
+            <span className="text-2xl font-black tracking-tight text-indigo-600">callme App</span>
           </div>
 
           <nav className="flex-1 space-y-1">
@@ -33,7 +32,16 @@ export default async function DashboardLayout({
               <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Dashboard
+              Home
+            </Link>
+            <Link
+              href="/dashboard/pages"
+              className="flex items-center rounded-lg px-2 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-900 group transition-all"
+            >
+              <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Landing Pages
             </Link>
             <Link
               href="/dashboard/my-calendar"
@@ -60,7 +68,7 @@ export default async function DashboardLayout({
               <svg className="mr-3 h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
-              Customers
+              Customer Insight
             </Link>
             <Link
               href="/dashboard/emails"

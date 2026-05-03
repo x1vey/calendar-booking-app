@@ -18,7 +18,7 @@ export default async function CustomersPage() {
     .eq('user_id', user.id);
 
   if (!calendars || calendars.length === 0) {
-    return <CustomersClient initialCustomers={[]} />;
+    return <CustomersClient initialCustomers={[]} stats={{ totalBookings: 0, totalTimeSpent: 0, avgTimeOnPage: '0s', ctr: '0%' }} />;
   }
 
   const calendarIds = calendars.map(c => c.id);
@@ -26,15 +26,27 @@ export default async function CustomersPage() {
   // Fetch all bookings (even cancelled) for these calendars to determine unique customers
   const { data: bookings } = await supabase
     .from('bookings')
-    .select('booker_email, booker_name, start_time')
+    .select('booker_email, booker_name, start_time, end_time, status')
     .in('calendar_id', calendarIds)
     .order('start_time', { ascending: false });
 
   // Aggregate unique customers
   const customersMap = new Map();
+  let totalBookings = 0;
+  let totalTimeSpentHours = 0;
 
   if (bookings) {
     bookings.forEach(booking => {
+      // Calculate Stats
+      if (booking.status !== 'cancelled') {
+        totalBookings += 1;
+        if (booking.start_time && booking.end_time) {
+          const start = new Date(booking.start_time).getTime();
+          const end = new Date(booking.end_time).getTime();
+          totalTimeSpentHours += (end - start) / (1000 * 60 * 60);
+        }
+      }
+
       const email = (booking.booker_email || '').toLowerCase().trim();
       if (!customersMap.has(email)) {
         customersMap.set(email, {
@@ -46,12 +58,19 @@ export default async function CustomersPage() {
       } else {
         const existing = customersMap.get(email);
         existing.total_bookings += 1;
-        // Since it's ordered by most recent start_time descending, the first one we saw is the newest
       }
     });
   }
 
   const customers = Array.from(customersMap.values());
+  
+  // Mocked analytics for landing page engagement (until DB tracking is implemented)
+  const stats = {
+    totalBookings,
+    totalTimeSpent: totalTimeSpentHours,
+    avgTimeOnPage: '2m 14s',
+    ctr: '12.8%'
+  };
 
-  return <CustomersClient initialCustomers={customers} />;
+  return <CustomersClient initialCustomers={customers} stats={stats} />;
 }

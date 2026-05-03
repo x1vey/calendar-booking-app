@@ -23,8 +23,8 @@ export default async function MyCalendarPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-slate-900 grotesque-heading">My Calendar</h1>
-        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">Your live Google Calendar schedule</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Calendar</h1>
+        <p className="text-sm font-medium text-slate-500 mt-1">Your live Google Calendar schedule</p>
       </div>
 
       {!isConnected ? (
@@ -34,11 +34,11 @@ export default async function MyCalendarPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Connect Google Calendar</h3>
+          <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">Connect Google Calendar</h3>
           <p className="text-sm text-slate-500 mb-8 max-w-sm">Link your Google account in Settings to see your live schedule here.</p>
           <a 
             href="/dashboard/settings" 
-            className="bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm inline-flex items-center justify-center rounded-lg font-bold h-10 px-4 py-2 text-sm transition-colors"
+            className="bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm inline-flex items-center justify-center rounded-lg font-medium h-10 px-4 py-2 text-sm transition-colors"
           >
             Go to Settings
           </a>

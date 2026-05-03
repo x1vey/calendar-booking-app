@@ -21,12 +21,47 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
+  // Fetch all bookings for these calendars to calculate stats
+  let totalBookings = 0;
+  let totalRevenue = 0;
+  let averageRevenue = 0;
+
+  if (calendars && calendars.length > 0) {
+    const calendarIds = calendars.map(c => c.id);
+    const { data: bookings } = await supabase
+      .from('bookings')
+      .select('amount_paid')
+      .in('calendar_id', calendarIds);
+
+    if (bookings) {
+      totalBookings = bookings.length;
+      totalRevenue = bookings.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0);
+      averageRevenue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+    }
+  }
+
   return (
     <div className="space-y-8">
+      {/* Dashboard Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="p-6 bg-white shadow-sm border-slate-200">
+          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Total Bookings</div>
+          <div className="text-3xl font-black text-slate-900">{totalBookings}</div>
+        </Card>
+        <Card className="p-6 bg-white shadow-sm border-slate-200">
+          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Total Revenue</div>
+          <div className="text-3xl font-black text-slate-900">${totalRevenue.toFixed(2)}</div>
+        </Card>
+        <Card className="p-6 bg-white shadow-sm border-slate-200">
+          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Avg. per Booking</div>
+          <div className="text-3xl font-black text-slate-900">${averageRevenue.toFixed(2)}</div>
+        </Card>
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900 grotesque-heading">Your Call Pages</h1>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">Manage your booking types and availability</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Your Call Pages</h1>
+          <p className="text-sm font-medium text-slate-500 mt-1">Manage your booking types and availability</p>
         </div>
         <Link href="/dashboard/calendar/new">
           <Button>
@@ -63,10 +98,10 @@ export default async function DashboardPage() {
             <Card key={calendar.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-black text-lg text-slate-900 group-hover:text-blue-600 transition-colors grotesque-heading tracking-tight">
+                  <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight">
                     {calendar.name}
                   </h3>
-                  <p className="text-xs font-bold text-slate-500 mt-0.5 tracking-wider">/{calendar.slug}</p>
+                  <p className="text-xs font-medium text-slate-500 mt-0.5">/{calendar.slug}</p>
                 </div>
                 <div className={calendar.is_active ? "w-2 h-2 rounded-full bg-emerald-500" : "w-2 h-2 rounded-full bg-slate-300"} title={calendar.is_active ? "Active" : "Inactive"}></div>
               </div>

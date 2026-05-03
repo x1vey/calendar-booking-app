@@ -16,6 +16,12 @@ interface Settings {
   zoom_refresh_token?: string | null;
   microsoft_refresh_token?: string | null;
   slack_webhook_url?: string | null;
+  stripe_secret_key?: string | null;
+  stripe_publishable_key?: string | null;
+  paypal_client_id?: string | null;
+  paypal_secret?: string | null;
+  razorpay_key_id?: string | null;
+  razorpay_key_secret?: string | null;
 }
 
 export default function AccountSettingsForm({ initialSettings, userId }: { initialSettings: Settings | null, userId: string }) {
@@ -30,6 +36,12 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
     zoom_refresh_token: null,
     microsoft_refresh_token: null,
     slack_webhook_url: '',
+    stripe_secret_key: '',
+    stripe_publishable_key: '',
+    paypal_client_id: '',
+    paypal_secret: '',
+    razorpay_key_id: '',
+    razorpay_key_secret: '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -60,6 +72,12 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
           display_name: settings.display_name,
           notification_email: settings.notification_email,
           slack_webhook_url: settings.slack_webhook_url,
+          stripe_secret_key: settings.stripe_secret_key,
+          stripe_publishable_key: settings.stripe_publishable_key,
+          paypal_client_id: settings.paypal_client_id,
+          paypal_secret: settings.paypal_secret,
+          razorpay_key_id: settings.razorpay_key_id,
+          razorpay_key_secret: settings.razorpay_key_secret,
         }),
       });
       alert('Settings saved!');
@@ -362,6 +380,81 @@ export default function AccountSettingsForm({ initialSettings, userId }: { initi
            <div className="pt-4 flex justify-end border-t border-slate-100 mt-6">
              <Button type="submit" disabled={saving}>
                {saving ? 'Saving...' : 'Save Slack Settings'}
+             </Button>
+           </div>
+        </form>
+      </Card>
+
+      {/* Payment Settings */}
+      <Card className="p-8">
+        <form onSubmit={handleSave} className="space-y-6">
+           <div className="space-y-1">
+             <h3 className="text-lg font-semibold text-slate-900">Payment Integrations</h3>
+             <p className="text-sm text-slate-500">Configure your payment gateways to charge customers for bookings.</p>
+           </div>
+           
+           <div className="space-y-8">
+             <div className="space-y-4">
+               <h4 className="font-medium text-slate-800">Stripe</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input 
+                    label="Stripe Publishable Key" 
+                    placeholder="pk_test_..."
+                    value={settings.stripe_publishable_key || ''}
+                    onChange={(e) => setSettings({ ...settings, stripe_publishable_key: e.target.value })}
+                  />
+                  <Input 
+                    label="Stripe Secret Key" 
+                    type="password"
+                    placeholder="sk_test_..."
+                    value={settings.stripe_secret_key || ''}
+                    onChange={(e) => setSettings({ ...settings, stripe_secret_key: e.target.value })}
+                  />
+               </div>
+             </div>
+
+             <div className="space-y-4">
+               <h4 className="font-medium text-slate-800">PayPal</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input 
+                    label="PayPal Client ID" 
+                    placeholder="AbCdEf..."
+                    value={settings.paypal_client_id || ''}
+                    onChange={(e) => setSettings({ ...settings, paypal_client_id: e.target.value })}
+                  />
+                  <Input 
+                    label="PayPal Secret" 
+                    type="password"
+                    placeholder="Secret"
+                    value={settings.paypal_secret || ''}
+                    onChange={(e) => setSettings({ ...settings, paypal_secret: e.target.value })}
+                  />
+               </div>
+             </div>
+
+             <div className="space-y-4">
+               <h4 className="font-medium text-slate-800">Razorpay</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input 
+                    label="Razorpay Key ID" 
+                    placeholder="rzp_test_..."
+                    value={settings.razorpay_key_id || ''}
+                    onChange={(e) => setSettings({ ...settings, razorpay_key_id: e.target.value })}
+                  />
+                  <Input 
+                    label="Razorpay Key Secret" 
+                    type="password"
+                    placeholder="Secret"
+                    value={settings.razorpay_key_secret || ''}
+                    onChange={(e) => setSettings({ ...settings, razorpay_key_secret: e.target.value })}
+                  />
+               </div>
+             </div>
+           </div>
+           
+           <div className="pt-4 flex justify-end border-t border-slate-100 mt-6">
+             <Button type="submit" disabled={saving}>
+               {saving ? 'Saving...' : 'Save Payment Keys'}
              </Button>
            </div>
         </form>

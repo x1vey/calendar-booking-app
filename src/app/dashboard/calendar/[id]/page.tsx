@@ -9,12 +9,12 @@ import { TIMEZONES } from '@/lib/timezone';
 import { Calendar, EmailTemplate, Booking } from '@/lib/types';
 import AvailabilityEditor from '@/components/AvailabilityEditor';
 import EmailEditor from '@/components/EmailEditor';
-import LandingPageEditor from '@/components/LandingPageEditor';
+import CalendarBuilder from '@/components/CalendarBuilder';
 
 export default function CalendarDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'settings' | 'landing_page' | 'availability' | 'email' | 'bookings'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'calendar_builder' | 'availability' | 'email' | 'bookings'>('settings');
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,7 +80,7 @@ export default function CalendarDetailPage() {
       </div>
 
       <div className="flex space-x-1 border-b border-slate-200">
-        {(['settings', 'landing_page', 'availability', 'email', 'bookings'] as const).map((tab) => (
+        {(['settings', 'calendar_builder', 'availability', 'email', 'bookings'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -90,7 +90,7 @@ export default function CalendarDetailPage() {
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
-            {tab === 'landing_page' ? 'Landing Page' : tab}
+            {tab === 'calendar_builder' ? 'Calendar Builder' : tab}
           </button>
         ))}
       </div>
@@ -187,7 +187,45 @@ export default function CalendarDetailPage() {
                     <option value="outlook">Outlook</option>
                   </select>
                 </div>
-                <div className="flex items-center space-x-2 pt-6 md:col-span-2">
+                <div className="space-y-1.5 md:col-span-2 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">Pricing & Payments</h3>
+                  <div className="flex items-center space-x-2 mb-4">
+                     <input
+                      type="checkbox"
+                      id="require_payment"
+                      checked={calendar.require_payment || false}
+                      onChange={(e) => setCalendar({ ...calendar, require_payment: e.target.checked })}
+                      className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                     />
+                     <label htmlFor="require_payment" className="text-sm font-medium text-slate-700">Require payment to book</label>
+                  </div>
+                  
+                  {calendar.require_payment && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Price"
+                        type="number"
+                        step="0.01"
+                        value={calendar.price || 0}
+                        onChange={(e) => setCalendar({ ...calendar, price: Number(e.target.value) })}
+                      />
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700">Currency</label>
+                        <select
+                          className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                          value={calendar.currency || 'USD'}
+                          onChange={(e) => setCalendar({ ...calendar, currency: e.target.value })}
+                        >
+                          <option value="USD">USD ($)</option>
+                          <option value="EUR">EUR (€)</option>
+                          <option value="GBP">GBP (£)</option>
+                          <option value="INR">INR (₹)</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2 pt-6 md:col-span-2 border-t border-slate-100">
                    <input
                     type="checkbox"
                     id="is_active"
@@ -208,7 +246,7 @@ export default function CalendarDetailPage() {
         )}
 
         {/* Other tabs will be implemented as sub-components or blocks */}
-        {activeTab === 'landing_page' && <LandingPageEditor calendar={calendar} onUpdate={setCalendar} />}
+        {activeTab === 'calendar_builder' && <CalendarBuilder calendar={calendar} onUpdate={setCalendar} />}
         {activeTab === 'availability' && <AvailabilityEditor calendarId={id as string} />}
         {activeTab === 'email' && <EmailEditor calendar={calendar} onUpdate={setCalendar} />}
         {activeTab === 'bookings' && <BookingsSection calendarId={id as string} />}

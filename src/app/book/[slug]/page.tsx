@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, startOfDay } from 'date-fns';
 import { Calendar as CalendarType, AvailableSlot } from '@/lib/types';
 import { TIMEZONES } from '@/lib/timezone';
+import { SectionPreview } from '@/components/landing-builder';
 import '@/app/landing.css';
 
 interface ExtendedCalendar extends CalendarType {
@@ -98,26 +99,68 @@ function BookingPageInner({ slug }: { slug: string }) {
   const rawTestimonials = calendar.testimonial_videos;
   const testimonialList: string[] = Array.isArray(rawTestimonials) ? rawTestimonials : (typeof rawTestimonials === 'string' ? [rawTestimonials] : []);
 
+  // ─── CSS VARIABLES ────────────────────────────────────────────────────────────
+  let pageLayout: any = null;
+  if (calendar.landing_layout) {
+    try {
+      pageLayout = JSON.parse(calendar.landing_layout);
+    } catch (e) {
+      console.error('Failed to parse landing_layout', e);
+    }
+  }
+
+  const themeVars = pageLayout?.globalStyles ? {
+    '--theme-bg': pageLayout.globalStyles.bgColor,
+    '--theme-text': pageLayout.globalStyles.textColor,
+    '--theme-heading': pageLayout.globalStyles.headingColor,
+    '--theme-subheading': pageLayout.globalStyles.headingColor,
+    '--cal-bg': pageLayout.globalStyles.calendarBgColor || '#ffffff',
+    '--cal-text': pageLayout.globalStyles.calendarTextColor || '#0f172a',
+    '--theme-accent': pageLayout.globalStyles.accentColor || '#2563eb',
+  } as React.CSSProperties : {
+    '--theme-bg': calendar.theme_bg_color || '#f8fafc',
+    '--theme-text': calendar.theme_text_color || '#0f172a',
+    '--theme-heading': calendar.theme_heading_color || '#0f172a',
+    '--theme-subheading': calendar.theme_subheading_color || '#64748b',
+    '--cal-bg': '#ffffff',
+    '--cal-text': '#0f172a',
+    '--theme-accent': '#2563eb',
+  } as React.CSSProperties;
+
+  const calStyle = pageLayout?.globalStyles?.calendarStyle || 'flat';
+
+  const getCalendarClasses = () => {
+    let classes = "flex flex-col min-h-[600px] rounded-[2rem] p-8 md:p-12 ";
+    if (calStyle === 'glass') {
+      classes += "backdrop-blur-xl bg-opacity-70 shadow-2xl ring-1 ring-white/20";
+    } else if (calStyle === 'neo') {
+      classes += "shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-4 border-black";
+    } else {
+      classes += "shadow-2xl ring-1 ring-slate-200/50";
+    }
+    return classes;
+  };
+
   // ─── MINIMAL MODE ────────────────────────────────────────────────────────────
   if (calendar.landing_page_enabled === false) {
     return (
-      <div className="min-h-screen bg-slate-50 py-12 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row bg-white rounded-2xl shadow-xl overflow-hidden ring-1 ring-slate-200">
-          <div className="w-full md:w-1/3 p-8 bg-slate-50/50 border-b md:border-b-0 md:border-r border-slate-100">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-6">{calendar.name[0]}</div>
-            <h1 className="text-xl font-bold text-slate-900 mb-2">{calendar.name}</h1>
-            <p className="text-sm text-slate-600">{calendar.description}</p>
+      <div style={{ ...themeVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text)' }} className="min-h-screen py-12 px-4 selection:bg-blue-600 selection:text-white">
+        <div style={{ backgroundColor: 'var(--cal-bg)', color: 'var(--cal-text)' }} className={`max-w-4xl mx-auto flex flex-col md:flex-row overflow-hidden ${calStyle === 'neo' ? 'shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-4 border-black rounded-none' : 'rounded-2xl shadow-xl ring-1 ring-slate-200'}`}>
+          <div className="w-full md:w-1/3 p-8 border-b md:border-b-0 md:border-r" style={{ borderColor: 'var(--theme-accent)', opacity: 0.9 }}>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-6" style={{ backgroundColor: 'var(--theme-accent)' }}>{calendar.name[0]}</div>
+            <h1 className="text-xl font-bold mb-2" style={{ color: 'var(--theme-heading)' }}>{calendar.name}</h1>
+            <p className="text-sm opacity-70">{calendar.description}</p>
           </div>
           <div className="w-full md:w-2/3 p-8">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900">{format(currentMonth, 'MMMM yyyy')}</h3>
+              <h3 className="text-xl font-bold">{format(currentMonth, 'MMMM yyyy')}</h3>
               <div className="flex gap-2">
-                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-slate-100 rounded-xl"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg></button>
-                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-slate-100 rounded-xl"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg></button>
+                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-slate-100/50 rounded-xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg></button>
+                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-slate-100/50 rounded-xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg></button>
               </div>
             </div>
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="text-center text-xs text-slate-400 font-bold">{d}</div>)}
+              {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="text-center text-xs font-bold opacity-50">{d}</div>)}
             </div>
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: monthStart.getDay() }).map((_, i) => <div key={i} />)}
@@ -126,7 +169,8 @@ function BookingPageInner({ slug }: { slug: string }) {
                 const sel = selectedDate && isSameDay(day, selectedDate);
                 return (
                   <button key={day.toString()} disabled={past} onClick={() => { setSelectedDate(day); fetchSlots(day); }}
-                    className={`aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all ${sel ? 'bg-blue-600 text-white' : past ? 'text-slate-200 cursor-not-allowed' : 'hover:bg-blue-50 text-slate-700'}`}>
+                    style={sel ? { backgroundColor: 'var(--theme-accent)', color: '#fff' } : undefined}
+                    className={`aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all ${sel ? '' : past ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-100/50'}`}>
                     {format(day, 'd')}
                   </button>
                 );
@@ -138,52 +182,59 @@ function BookingPageInner({ slug }: { slug: string }) {
     );
   }
 
-  // ─── CSS VARIABLES ────────────────────────────────────────────────────────────
-  const themeVars = {
-    '--theme-bg': calendar.theme_bg_color || '#f8fafc',
-    '--theme-text': calendar.theme_text_color || '#0f172a',
-    '--theme-heading': calendar.theme_heading_color || '#0f172a',
-    '--theme-subheading': calendar.theme_subheading_color || '#64748b',
-  } as React.CSSProperties;
-
   // ─── FULL LANDING PAGE ────────────────────────────────────────────────────────
   return (
     <div style={{ ...themeVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text)' }} className="min-h-screen flex flex-col items-center pb-20 landing-body selection:bg-blue-600 selection:text-white">
 
-      {/* ── HERO ── */}
-      <div className="w-full max-w-7xl px-4 flex flex-col lg:flex-row items-center justify-between gap-12 mt-16 md:mt-24 lg:mt-32 mb-20 md:mb-32">
-        <div className={`flex flex-col flex-1 ${!calendar.hero_image_url ? 'items-center text-center max-w-4xl mx-auto' : ''}`}>
-          <h1 style={{ color: 'var(--theme-heading)' }} className="text-5xl md:text-7xl lg:text-8xl font-black grotesque-heading tracking-tighter uppercase leading-[0.9]">
-            {calendar.heading_text || calendar.name}
-          </h1>
-          {calendar.subheading_text && (
-            <p style={{ color: 'var(--theme-subheading)' }} className="text-xl md:text-2xl font-bold mt-6 max-w-2xl">{calendar.subheading_text}</p>
-          )}
-          <div className={`mt-10 flex ${!calendar.hero_image_url ? 'justify-center' : ''}`}>
-            <button onClick={scrollToBooking} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center px-10 py-5 rounded-[2rem] text-lg font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-600/30">
-              {calendar.cta_button_text || 'Book Now'}
-              <svg className="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-            </button>
-          </div>
+      {pageLayout ? (
+        <div className="w-full">
+           <style>{`
+             .lpb-preview-section .lpb-prev-h1, .lpb-preview-section .lpb-prev-h2, .lpb-preview-section .lpb-prev-h3 { color: ${pageLayout.globalStyles.headingColor}; }
+           `}</style>
+           {pageLayout.sections.filter((s: any) => s.visible).map((section: any) => (
+             <div key={section.id} className="lpb-preview-section">
+               <SectionPreview block={section} accentColor={pageLayout.globalStyles.accentColor} onCtaClick={scrollToBooking} />
+             </div>
+           ))}
         </div>
-        {calendar.hero_image_url && (
-          <div className="flex-1 w-full relative">
-            <img src={calendar.hero_image_url} alt="Hero" className="w-full object-cover rounded-[3rem] shadow-2xl" style={{ aspectRatio: '4/5' }} />
+      ) : (
+        <>
+          {/* ── HERO ── */}
+          <div className="w-full max-w-7xl px-4 flex flex-col lg:flex-row items-center justify-between gap-12 mt-16 md:mt-24 lg:mt-32 mb-20 md:mb-32">
+            <div className={`flex flex-col flex-1 ${!calendar.hero_image_url ? 'items-center text-center max-w-4xl mx-auto' : ''}`}>
+              <h1 style={{ color: 'var(--theme-heading)' }} className="text-5xl md:text-7xl lg:text-8xl font-black grotesque-heading tracking-tighter uppercase leading-[0.9]">
+                {calendar.heading_text || calendar.name}
+              </h1>
+              {calendar.subheading_text && (
+                <p style={{ color: 'var(--theme-subheading)' }} className="text-xl md:text-2xl font-bold mt-6 max-w-2xl">{calendar.subheading_text}</p>
+              )}
+              <div className={`mt-10 flex ${!calendar.hero_image_url ? 'justify-center' : ''}`}>
+                <button onClick={scrollToBooking} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center px-10 py-5 rounded-[2rem] text-lg font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-600/30">
+                  {calendar.cta_button_text || 'Book Now'}
+                  <svg className="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </button>
+              </div>
+            </div>
+            {calendar.hero_image_url && (
+              <div className="flex-1 w-full relative">
+                <img src={calendar.hero_image_url} alt="Hero" className="w-full object-cover rounded-[3rem] shadow-2xl" style={{ aspectRatio: '4/5' }} />
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
 
-      <div className="w-full max-w-5xl px-4 flex flex-col space-y-24">
+      <div className="w-full max-w-5xl px-4 flex flex-col space-y-24 mt-24">
 
         {/* ── VSL VIDEO ── */}
-        {mainYoutubeId && (
+        {!pageLayout && mainYoutubeId && (
           <div className="w-full max-w-4xl mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl ring-8 ring-white bg-black" style={{ aspectRatio: '16/9' }}>
             <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${mainYoutubeId}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
           </div>
         )}
 
         {/* ── EXPECTATIONS ── */}
-        {calendar.expectations_headline && (
+        {!pageLayout && calendar.expectations_headline && (
           <div className="bg-black/5 rounded-[3rem] p-8 md:p-12 border border-black/5 text-center max-w-4xl mx-auto w-full">
             <h2 style={{ color: 'var(--theme-heading)' }} className="text-3xl font-black tracking-tight">{calendar.expectations_headline}</h2>
             {calendar.expectations_body && (
@@ -194,20 +245,20 @@ function BookingPageInner({ slug }: { slug: string }) {
 
         {/* ── BOOKING CALENDAR ── */}
         <div id="booking-grid" className="scroll-mt-32 max-w-4xl mx-auto w-full">
-          <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-2xl ring-1 ring-slate-200/50 flex flex-col min-h-[600px] text-slate-900">
+          <div className={getCalendarClasses()} style={{ backgroundColor: 'var(--cal-bg)', color: 'var(--cal-text)' }}>
 
             {/* Header */}
-            <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-6">
+            <div className="flex justify-between items-center mb-8 border-b pb-6" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
               {step === 'date' ? (
-                <h2 className="text-2xl font-black tracking-tighter grotesque-heading uppercase text-slate-900">Select Date</h2>
+                <h2 className="text-2xl font-black tracking-tighter grotesque-heading uppercase">Select Date</h2>
               ) : (
-                <button onClick={() => setStep(step === 'slot' ? 'date' : 'slot')} className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center bg-blue-50 rounded-full py-2 px-4 uppercase tracking-widest transition-all">
+                <button onClick={() => setStep(step === 'slot' ? 'date' : 'slot')} className="text-xs font-bold flex items-center rounded-full py-2 px-4 uppercase tracking-widest transition-all" style={{ backgroundColor: 'var(--theme-accent)', color: '#fff' }}>
                   <svg className="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>Back
                 </button>
               )}
               <div className="text-right">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Timezone</label>
-                <select className="text-xs font-bold text-slate-900 bg-slate-50 border-none rounded-xl px-3 py-1.5 outline-none cursor-pointer" value={bookerTimezone} onChange={e => setBookerTimezone(e.target.value)}>
+                <label className="text-[10px] font-black uppercase tracking-widest block mb-1 opacity-50">Timezone</label>
+                <select className="text-xs font-bold border-none rounded-xl px-3 py-1.5 outline-none cursor-pointer bg-black/5" style={{ color: 'var(--cal-text)' }} value={bookerTimezone} onChange={e => setBookerTimezone(e.target.value)}>
                   {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
                 </select>
               </div>
@@ -217,14 +268,14 @@ function BookingPageInner({ slug }: { slug: string }) {
             {step === 'date' && (
               <div className="space-y-8 flex-1 max-w-2xl mx-auto w-full">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-slate-900">{format(currentMonth, 'MMMM yyyy')}</h3>
+                  <h3 className="text-xl font-bold">{format(currentMonth, 'MMMM yyyy')}</h3>
                   <div className="flex space-x-2">
-                    <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg></button>
-                    <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg></button>
+                    <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-3 hover:bg-black/5 rounded-2xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg></button>
+                    <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-3 hover:bg-black/5 rounded-2xl transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg></button>
                   </div>
                 </div>
                 <div className="grid grid-cols-7 gap-4 text-center">
-                  {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => <div key={d} className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{d}</div>)}
+                  {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => <div key={d} className="text-[10px] font-black uppercase tracking-widest opacity-30">{d}</div>)}
                 </div>
                 <div className="grid grid-cols-7 gap-4">
                   {Array.from({ length: monthStart.getDay() }).map((_, i) => <div key={i} className="aspect-square" />)}
@@ -233,9 +284,10 @@ function BookingPageInner({ slug }: { slug: string }) {
                     const isSel = selectedDate && isSameDay(day, selectedDate);
                     return (
                       <button key={day.toString()} disabled={isPast} onClick={() => { setSelectedDate(day); fetchSlots(day); }}
-                        className={`aspect-square flex flex-col items-center justify-center rounded-[1.25rem] text-lg transition-all relative font-bold ${isSel ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : isPast ? 'text-slate-200 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600 hover:scale-105 active:scale-95'}`}>
+                        style={isSel ? { backgroundColor: 'var(--theme-accent)', color: '#fff', boxShadow: `0 10px 15px -3px var(--theme-accent)` } : undefined}
+                        className={`aspect-square flex flex-col items-center justify-center rounded-[1.25rem] text-lg transition-all relative font-bold ${isSel ? '' : isPast ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/5 hover:scale-105 active:scale-95'}`}>
                         <span>{format(day, 'd')}</span>
-                        {isToday(day) && !isSel && <div className="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-blue-600" />}
+                        {isToday(day) && !isSel && <div className="absolute bottom-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--theme-accent)' }} />}
                       </button>
                     );
                   })}
@@ -247,20 +299,23 @@ function BookingPageInner({ slug }: { slug: string }) {
             {step === 'slot' && (
               <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full">
                 <div className="text-center mb-10 pt-4">
-                  <h2 className="text-3xl font-black text-slate-900">{format(selectedDate!, 'EEEE, MMMM d')}</h2>
-                  <p className="text-xs text-blue-600 uppercase tracking-widest font-bold mt-2">Pick an available slot</p>
+                  <h2 className="text-3xl font-black">{format(selectedDate!, 'EEEE, MMMM d')}</h2>
+                  <p className="text-xs uppercase tracking-widest font-bold mt-2" style={{ color: 'var(--theme-accent)' }}>Pick an available slot</p>
                 </div>
                 {slotsLoading ? (
-                  <div className="grid grid-cols-3 gap-4">{[1,2,3,4,5,6].map(i => <div key={i} className="h-16 bg-slate-50 animate-pulse rounded-2xl" />)}</div>
+                  <div className="grid grid-cols-3 gap-4">{[1,2,3,4,5,6].map(i => <div key={i} className="h-16 bg-black/5 animate-pulse rounded-2xl" />)}</div>
                 ) : availableSlots.length === 0 ? (
                   <div className="flex-1 flex items-center justify-center">
-                    <p className="font-bold text-slate-400 uppercase tracking-widest text-sm">No slots available for this date.</p>
+                    <p className="font-bold opacity-50 uppercase tracking-widest text-sm">No slots available for this date.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {availableSlots.map(slot => (
                       <button key={slot.startTime} onClick={() => { setSelectedSlot(slot); setStep('form'); }}
-                        className="py-5 px-6 text-[15px] font-bold border-2 border-slate-100 rounded-2xl hover:border-blue-600 hover:bg-blue-600 hover:text-white transition-all text-slate-700 active:scale-95">
+                        style={{ borderColor: 'rgba(0,0,0,0.1)' }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--theme-accent)'; e.currentTarget.style.color = '#fff'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--cal-text)'; }}
+                        className="py-5 px-6 text-[15px] font-bold border-2 rounded-2xl transition-all active:scale-95">
                         {format(new Date(slot.localStartTime), 'h:mm a')}
                       </button>
                     ))}
@@ -273,11 +328,11 @@ function BookingPageInner({ slug }: { slug: string }) {
             {step === 'form' && (
               <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
                 <div className="text-center mb-10">
-                  <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
+                  <div className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--theme-accent)', color: '#fff', opacity: 0.9 }}>
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
-                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Final Step</h2>
-                  <p className="text-sm font-bold text-slate-500 mt-2">
+                  <h2 className="text-3xl font-black tracking-tight">Final Step</h2>
+                  <p className="text-sm font-bold opacity-70 mt-2">
                     {format(new Date(selectedSlot!.localStartTime), 'MMM d, yyyy')} • {format(new Date(selectedSlot!.localStartTime), 'h:mm a')}
                   </p>
                 </div>
@@ -285,7 +340,7 @@ function BookingPageInner({ slug }: { slug: string }) {
                   <Input label="First & Last Name" placeholder="Your full name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                   <Input label="Email Address" type="email" placeholder="you@company.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
                   <div className="pt-2">
-                    <Button type="submit" disabled={bookingLoading} className="w-full btn-pill h-14 text-sm uppercase tracking-widest font-black shadow-xl shadow-blue-600/30 text-white">
+                    <Button type="submit" disabled={bookingLoading} className="w-full btn-pill h-14 text-sm uppercase tracking-widest font-black shadow-xl text-white" style={{ backgroundColor: 'var(--theme-accent)', boxShadow: '0 10px 15px -3px var(--theme-accent)' }}>
                       {bookingLoading ? 'Securing Slot...' : 'Confirm Call'}
                     </Button>
                   </div>

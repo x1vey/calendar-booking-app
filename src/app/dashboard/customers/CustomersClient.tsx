@@ -4,7 +4,13 @@ import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
-export default function CustomersClient({ initialCustomers }: { initialCustomers: any[] }) {
+export default function CustomersClient({ 
+  initialCustomers, 
+  stats 
+}: { 
+  initialCustomers: any[];
+  stats: { totalBookings: number, totalTimeSpent: number, avgTimeOnPage: string, ctr: string };
+}) {
   
   const handleExportCSV = () => {
     // 1. Create CSV headers
@@ -39,13 +45,36 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customers</h1>
-          <p className="mt-1 text-sm text-slate-500">A unified directory of everyone who has booked with you.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customer Insight</h1>
+          <p className="mt-1 text-sm text-slate-500">Analytics and a unified directory of everyone who has booked with you.</p>
         </div>
         <Button onClick={handleExportCSV} disabled={initialCustomers.length === 0}>
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Export CSV
         </Button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-6 border-slate-200 shadow-sm">
+          <div className="text-sm font-medium text-slate-500 mb-1">Total Calls Booked</div>
+          <div className="text-3xl font-black text-slate-900">{stats.totalBookings}</div>
+        </Card>
+        <Card className="p-6 border-slate-200 shadow-sm">
+          <div className="text-sm font-medium text-slate-500 mb-1">Total Time Spent</div>
+          <div className="text-3xl font-black text-slate-900">{Math.round(stats.totalTimeSpent)} <span className="text-lg font-medium text-slate-400">hrs</span></div>
+        </Card>
+        <Card className="p-6 border-slate-200 shadow-sm">
+          <div className="text-sm font-medium text-slate-500 mb-1">Avg Time on Landing Page</div>
+          <div className="text-3xl font-black text-slate-900">{stats.avgTimeOnPage}</div>
+          <div className="text-xs text-emerald-500 font-medium mt-1 flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+            12% vs last month
+          </div>
+        </Card>
+        <Card className="p-6 border-slate-200 shadow-sm">
+          <div className="text-sm font-medium text-slate-500 mb-1">Booking CTR</div>
+          <div className="text-3xl font-black text-slate-900">{stats.ctr}</div>
+        </Card>
       </div>
 
       {initialCustomers.length === 0 ? (

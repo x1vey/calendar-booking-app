@@ -19,6 +19,15 @@ export interface UserSettings {
   twilio_account_sid: string | null;
   twilio_auth_token: string | null;
   twilio_whatsapp_number: string | null;
+  
+  // Payment Integration
+  stripe_secret_key: string | null;
+  stripe_publishable_key: string | null;
+  paypal_client_id: string | null;
+  paypal_secret: string | null;
+  razorpay_key_id: string | null;
+  razorpay_key_secret: string | null;
+
   updated_at: string;
 }
 
@@ -61,6 +70,17 @@ export interface Calendar {
   terms_url: string | null;
   review_request_sent: boolean;
   
+  // Page Builder Layout (JSON string)
+  landing_layout: string | null;
+  
+  // Calendar Widget Layout Builder (JSON string)
+  calendar_layout: string | null;
+
+  // Payments
+  require_payment: boolean;
+  price: number;
+  currency: string;
+  
   meeting_provider: 'google_meet' | 'zoom' | 'ms_teams' | null;
   calendar_sync_provider: 'google' | 'outlook' | null;
   created_at: string;
@@ -94,6 +114,13 @@ export interface Booking {
   review_request_sent: boolean;
   source: string | null;
   booker_phone: string | null;
+  
+  // Payments
+  amount_paid: number;
+  payment_status: 'pending' | 'paid' | 'refunded';
+  payment_provider: 'stripe' | 'paypal' | 'razorpay' | null;
+  payment_intent_id: string | null;
+
   created_at: string;
 }
 
