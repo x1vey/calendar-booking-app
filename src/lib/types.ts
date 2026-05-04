@@ -41,6 +41,8 @@ export interface Calendar {
   call_type: CallType;
   max_attendees: number;
   slot_duration_minutes: number;
+  mode: 'individual' | 'organization';
+  booking_type: 'hourly' | 'daily';
   google_refresh_token: string | null;
   is_active: boolean;
   timezone: string;
@@ -74,7 +76,16 @@ export interface Calendar {
   landing_layout: string | null;
   
   // Calendar Widget Layout Builder (JSON string)
+  // Supports: { htmlOverrides: { headerPrefix?, headerSuffix?, footer? } }
   calendar_layout: string | null;
+
+  // Aesthetic theme — maps to THEMES keys in lib/themes.ts
+  // Values: 'fitness' | 'tattoo' | 'garment' | 'default'
+  calendar_theme: string;
+
+  // Optional per-business hex accent override (e.g. '#ff4d00').
+  // When null the theme's default accent is used.
+  accent_color: string | null;
 
   // Payments
   require_payment: boolean;
@@ -149,4 +160,25 @@ export interface BookingFormData {
   startTime: string; // ISO string
   endTime: string; // ISO string
   note?: string;
+}
+
+export interface Service {
+  id: string;
+  calendar_id: string;
+  name: string;
+  description: string | null;
+  duration_mins: number;
+  price: number;
+  created_at: string;
+}
+
+export interface TeamMember {
+  id: string;
+  calendar_id: string;
+  name: string;
+  email: string | null;
+  avatar_url: string | null;
+  schedule: Record<string, { start: string; end: string }[]> | null;
+  is_active: boolean;
+  created_at: string;
 }

@@ -6,6 +6,7 @@ import { SECTION_CATALOG, createSection, getDefaultLayout } from './catalog';
 import SectionEditor from './SectionEditor';
 import SectionPreview from './SectionPreview';
 import { Calendar } from '@/lib/types';
+import { getTheme, buildThemeCSS } from '@/lib/themes';
 import './landing-builder.css';
 
 // ─── Main Builder Component ───
@@ -133,6 +134,13 @@ export default function LandingPageBuilder({
   const updateGlobal = (key: string, value: string) => {
     setLayout(prev => ({ ...prev, globalStyles: { ...prev.globalStyles, [key]: value } }));
   };
+
+  const themeCSS = buildThemeCSS(layout.globalStyles.calendarTheme as any, {
+    accentColor: layout.globalStyles.accentColor,
+    bgColor: layout.globalStyles.bgColor,
+    textColor: layout.globalStyles.textColor,
+    ...layout.globalStyles,
+  });
 
   // ─── Save ───
   const handleSave = async () => {
@@ -309,7 +317,33 @@ export default function LandingPageBuilder({
                   <h3>Global Styles</h3>
                 </div>
                 <div className="lpb-props-body">
-                  <div className="lpb-prop-group">
+                    <label className="lpb-prop-label">Base Aesthetic (Theme)</label>
+                    <div className="lpb-btn-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                      {(['default', 'fitness', 'tattoo', 'garment'] as const).map(t => (
+                        <button 
+                          key={t} 
+                          className={`lpb-chip ${layout.globalStyles.calendarTheme === t ? 'active' : ''}`} 
+                          onClick={() => {
+                            const theme = getTheme(t);
+                            setLayout(prev => ({
+                              ...prev,
+                              globalStyles: {
+                                ...prev.globalStyles,
+                                calendarTheme: t,
+                                accentColor: theme.accent,
+                                bgColor: t === 'fitness' ? '#0d0d0d' : t === 'tattoo' ? '#f7f3ee' : t === 'garment' ? '#fdfaf6' : '#f1f5f9',
+                                textColor: t === 'fitness' ? '#f0ede6' : t === 'tattoo' ? '#1a1410' : t === 'garment' ? '#2a2118' : '#334155',
+                                headingColor: t === 'fitness' ? '#f0ede6' : t === 'tattoo' ? '#1a1410' : t === 'garment' ? '#2a2118' : '#0f172a',
+                                fontFamily: theme.fontStack === 'serif' ? "'Outfit', serif" : theme.fontStack === 'mono' ? "'JetBrains Mono', monospace" : "'Inter', sans-serif"
+                              }
+                            }));
+                          }}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+
                     <label className="lpb-prop-label">Accent Color</label>
                     <div className="lpb-color-row">
                       <input type="color" value={layout.globalStyles.accentColor} onChange={e => updateGlobal('accentColor', e.target.value)} className="lpb-color-input" />
@@ -329,6 +363,54 @@ export default function LandingPageBuilder({
                     <div className="lpb-color-row">
                       <input type="color" value={layout.globalStyles.headingColor} onChange={e => updateGlobal('headingColor', e.target.value)} className="lpb-color-input" />
                       <span className="lpb-color-hex">{layout.globalStyles.headingColor}</span>
+                    </div>
+
+                    <div className="lpb-prop-divider" style={{ margin: '12px 0' }} />
+                    <h4 style={{ fontSize: '12px', fontWeight: 800, margin: '0 0 10px', color: '#0f172a' }}>Shapes & Borders</h4>
+                    
+                    <label className="lpb-prop-label">Corner Radius</label>
+                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                      {(['none', 'sm', 'md', 'lg', 'full'] as const).map(r => (
+                        <button key={r} className={`lpb-chip ${layout.globalStyles.borderRadius === r ? 'active' : ''}`} onClick={() => updateGlobal('borderRadius', r)}>
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+
+                    <label className="lpb-prop-label">Border Width</label>
+                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {(['none', 'thin', 'medium', 'thick'] as const).map(w => (
+                        <button key={w} className={`lpb-chip ${layout.globalStyles.borderWidth === w ? 'active' : ''}`} onClick={() => updateGlobal('borderWidth', w)}>
+                          {w}
+                        </button>
+                      ))}
+                    </div>
+
+                    <label className="lpb-prop-label">Shadow Depth</label>
+                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {(['none', 'soft', 'strong'] as const).map(s => (
+                        <button key={s} className={`lpb-chip ${layout.globalStyles.shadowStyle === s ? 'active' : ''}`} onClick={() => updateGlobal('shadowStyle', s)}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+
+                    <label className="lpb-prop-label">Button Style</label>
+                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                      {(['solid', 'outline', 'ghost'] as const).map(s => (
+                        <button key={s} className={`lpb-chip ${layout.globalStyles.buttonShape === s ? 'active' : ''}`} onClick={() => updateGlobal('buttonShape', s)}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+
+                    <label className="lpb-prop-label">Overlay Texture</label>
+                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                      {(['none', 'noise', 'weave', 'dots', 'svg'] as const).map(t => (
+                        <button key={t} className={`lpb-chip ${layout.globalStyles.texture === t ? 'active' : ''}`} onClick={() => updateGlobal('texture', t)}>
+                          {t}
+                        </button>
+                      ))}
                     </div>
 
                     <div className="lpb-prop-divider" style={{ margin: '12px 0' }} />
@@ -354,7 +436,6 @@ export default function LandingPageBuilder({
                       <input type="color" value={layout.globalStyles.calendarTextColor || '#0f172a'} onChange={e => updateGlobal('calendarTextColor', e.target.value)} className="lpb-color-input" />
                       <span className="lpb-color-hex">{layout.globalStyles.calendarTextColor || '#0f172a'}</span>
                     </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -364,17 +445,19 @@ export default function LandingPageBuilder({
         {/* ── Right Panel: Live Preview ── */}
         {viewMode !== 'edit' && (
           <div className="lpb-panel-right">
-            <div className="lpb-preview-frame" style={{ background: layout.globalStyles.bgColor, color: layout.globalStyles.textColor }}>
-              <style>{`
-                .lpb-preview-frame .lpb-prev-h1, .lpb-preview-frame .lpb-prev-h2, .lpb-preview-frame .lpb-prev-h3 { color: ${layout.globalStyles.headingColor}; }
-              `}</style>
+            <div className="lpb-preview-frame" style={{ background: 'var(--ct-bg)', color: 'var(--ct-text)', fontFamily: 'var(--ct-font)' }}>
+              <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
               {layout.sections.filter(s => s.visible).map(section => (
                 <div
                   key={section.id}
                   className={`lpb-preview-section ${selectedId === section.id ? 'highlighted' : ''}`}
                   onClick={() => { if (viewMode === 'split') setSelectedId(section.id); }}
                 >
-                  <SectionPreview block={section} accentColor={layout.globalStyles.accentColor} />
+                  <SectionPreview 
+                    block={section} 
+                    accentColor={layout.globalStyles.accentColor} 
+                    theme={layout.globalStyles.calendarTheme}
+                  />
                 </div>
               ))}
               {layout.sections.filter(s => s.visible).length === 0 && (

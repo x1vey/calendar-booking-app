@@ -28,9 +28,14 @@ export interface PageLayout {
     accentColor: string;
     fontFamily: string;
     borderRadius: string;
+    borderWidth: 'none' | 'thin' | 'medium' | 'thick';
+    shadowStyle: 'none' | 'soft' | 'strong';
+    buttonShape: 'solid' | 'outline' | 'ghost';
+    texture: 'none' | 'noise' | 'weave' | 'dots' | 'svg';
     calendarBgColor?: string;
     calendarTextColor?: string;
     calendarStyle?: 'flat' | 'glass' | 'neo';
+    calendarTheme?: string;
   };
 }
 

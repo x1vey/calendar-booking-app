@@ -142,7 +142,7 @@ function ReschedulePageInner() {
                 </div>
               </div>
               <div className="grid grid-cols-7 gap-2 md:gap-4 text-center">
-                {['S','M','T','W','T','F','S'].map(d => <div key={d} className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">{d}</div>)}
+                {['S','M','T','W','T','F','S'].map((d, i) => <div key={`${d}-${i}`} className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">{d}</div>)}
               </div>
               <div className="grid grid-cols-7 gap-2 md:gap-4">
                 {Array.from({ length: monthStart.getDay() }).map((_, i) => <div key={i} className="aspect-square" />)}

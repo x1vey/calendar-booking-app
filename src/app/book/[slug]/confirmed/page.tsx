@@ -10,12 +10,39 @@ import { format } from 'date-fns';
 export default function ConfirmedPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+  const sessionId = searchParams.get('session_id');
+  const paymentId = searchParams.get('payment_id');
+  const token = searchParams.get('token');
+  
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [verifying, setVerifying] = useState(!!(sessionId || paymentId || token));
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchBooking() {
+    async function init() {
       if (!id) return;
+      
+      // 1. Verify Payment if params exist
+      if (sessionId || paymentId || token) {
+        try {
+          const verifyRes = await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingId: id, sessionId, paymentId, token }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok) {
+            setVerifyError(verifyData.error || 'Payment verification failed');
+          }
+        } catch (err: any) {
+          setVerifyError(err.message);
+        } finally {
+          setVerifying(false);
+        }
+      }
+
+      // 2. Fetch Booking Info
       try {
         const res = await fetch(`/api/booking-info/${id}`);
         if (res.ok) {
@@ -28,10 +55,25 @@ export default function ConfirmedPage() {
         setLoading(false);
       }
     }
-    fetchBooking();
-  }, [id]);
+    init();
+  }, [id, sessionId, paymentId, token]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50">Loading...</div>;
+  if (loading || verifying) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-sm font-bold uppercase tracking-widest opacity-50 animate-pulse">{verifying ? 'Verifying Payment...' : 'Loading Booking...'}</p></div>;
+
+  if (verifyError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <Card className="max-w-md p-8 text-center space-y-4">
+          <div className="w-16 h-16 mx-auto bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
+             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </div>
+          <h2 className="text-xl font-black text-rose-600">Payment Failed or Unverified</h2>
+          <p className="text-sm text-slate-500 font-medium">{verifyError}</p>
+          <Button className="mt-4 w-full" onClick={() => window.location.href = `/book/${booking?.calendars?.slug || ''}`}>Try Booking Again</Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">

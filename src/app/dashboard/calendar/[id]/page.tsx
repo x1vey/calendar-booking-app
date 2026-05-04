@@ -14,7 +14,7 @@ import CalendarBuilder from '@/components/CalendarBuilder';
 export default function CalendarDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'settings' | 'calendar_builder' | 'availability' | 'email' | 'bookings'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'calendar_builder' | 'availability' | 'email' | 'bookings' | 'share'>('settings');
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,12 +80,13 @@ export default function CalendarDetailPage() {
       </div>
 
       <div className="flex space-x-1 border-b border-slate-200">
-        {(['settings', 'calendar_builder', 'availability', 'email', 'bookings'] as const).map((tab) => (
+        {(['settings', 'calendar_builder', 'availability', 'email', 'bookings', 'share'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px capitalize ${
               activeTab === tab
+
                 ? 'border-indigo-600 text-indigo-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
@@ -250,6 +251,7 @@ export default function CalendarDetailPage() {
         {activeTab === 'availability' && <AvailabilityEditor calendarId={id as string} />}
         {activeTab === 'email' && <EmailEditor calendar={calendar} onUpdate={setCalendar} />}
         {activeTab === 'bookings' && <BookingsSection calendarId={id as string} />}
+        {activeTab === 'share' && <ShareSection calendar={calendar} />}
       </div>
     </div>
   );
@@ -369,5 +371,85 @@ function BookingsSection({ calendarId }: { calendarId: string }) {
         </table>
       </div>
     </Card>
+  );
+}
+
+function ShareSection({ calendar }: { calendar: Calendar }) {
+  const [copiedInline, setCopiedInline] = useState(false);
+  const [copiedPopup, setCopiedPopup] = useState(false);
+  
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com';
+  const embedUrl = `${origin}/book/${calendar.slug}?embed=true`;
+
+  const inlineCode = `<iframe 
+  src="${embedUrl}" 
+  width="100%" 
+  height="700px" 
+  frameborder="0" 
+  style="border-radius: 12px; overflow: hidden;"
+></iframe>`;
+
+  const popupCode = `<!-- Callme Pop-up Button -->
+<link rel="stylesheet" href="${origin}/popup.css">
+<button class="callme-popup-btn" onclick="openCallmePopup()">Book a Call</button>
+
+<div id="callme-popup-overlay" class="callme-popup-overlay" onclick="closeCallmePopup()">
+  <div class="callme-popup-content" onclick="event.stopPropagation()">
+    <button class="callme-popup-close" onclick="closeCallmePopup()">×</button>
+    <iframe src="${embedUrl}" width="100%" height="700px" frameborder="0"></iframe>
+  </div>
+</div>
+
+<script>
+  function openCallmePopup() { document.getElementById('callme-popup-overlay').style.display = 'flex'; }
+  function closeCallmePopup() { document.getElementById('callme-popup-overlay').style.display = 'none'; }
+</script>`;
+
+  const handleCopy = (type: 'inline' | 'popup') => {
+    const code = type === 'inline' ? inlineCode : popupCode;
+    navigator.clipboard.writeText(code);
+    if (type === 'inline') {
+      setCopiedInline(true);
+      setTimeout(() => setCopiedInline(false), 2000);
+    } else {
+      setCopiedPopup(true);
+      setTimeout(() => setCopiedPopup(false), 2000);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <Card className="p-8">
+        <h2 className="text-xl font-bold text-slate-900 mb-2">1. Inline Embed</h2>
+        <p className="text-sm text-slate-500 mb-6">Embed the calendar directly onto your website (Notion, Webflow, WordPress, etc).</p>
+        
+        <div className="relative">
+          <div className="absolute top-3 right-3">
+            <Button size="sm" variant="outline" onClick={() => handleCopy('inline')}>
+              {copiedInline ? 'Copied!' : 'Copy Code'}
+            </Button>
+          </div>
+          <pre className="bg-slate-900 text-slate-50 p-6 rounded-xl text-sm overflow-x-auto">
+            <code>{inlineCode}</code>
+          </pre>
+        </div>
+      </Card>
+
+      <Card className="p-8">
+        <h2 className="text-xl font-bold text-slate-900 mb-2">2. Pop-up Embed</h2>
+        <p className="text-sm text-slate-500 mb-6">Add a button that opens your calendar in a clean overlay.</p>
+        
+        <div className="relative">
+          <div className="absolute top-3 right-3">
+            <Button size="sm" variant="outline" onClick={() => handleCopy('popup')}>
+              {copiedPopup ? 'Copied!' : 'Copy Code'}
+            </Button>
+          </div>
+          <pre className="bg-slate-900 text-slate-50 p-6 rounded-xl text-sm overflow-x-auto">
+            <code>{popupCode}</code>
+          </pre>
+        </div>
+      </Card>
+    </div>
   );
 }

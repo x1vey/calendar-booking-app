@@ -23,7 +23,7 @@ export async function GET(
 
   const { data: userSettings } = await supabase
     .from('user_settings')
-    .select('avatar_url, about_me, display_name')
+    .select('avatar_url, about_me, display_name, stripe_secret_key, paypal_client_id, razorpay_key_id')
     .eq('user_id', calendar.user_id)
     .single();
 
@@ -68,10 +68,24 @@ export async function GET(
     privacy_url: calendar.privacy_url,
     terms_url: calendar.terms_url,
 
+    // Layouts
+    landing_layout: calendar.landing_layout,
+    calendar_layout: calendar.calendar_layout,
+
+    // Payments
+    require_payment: calendar.require_payment,
+    price: calendar.price,
+    currency: calendar.currency,
+    
+    // Configured Payment Gateways (boolean checks, don't expose keys)
+    stripe_enabled: !!(userSettings?.stripe_secret_key || process.env.STRIPE_SECRET_KEY),
+    paypal_enabled: !!(userSettings?.paypal_client_id || process.env.PAYPAL_CLIENT_ID),
+    razorpay_enabled: !!(userSettings?.razorpay_key_id || process.env.RAZORPAY_KEY_ID),
+
     // Profile Settings
     avatar_url: userSettings?.avatar_url,
     about_me: userSettings?.about_me,
     display_name: userSettings?.display_name,
-    // Explicitly exclude: google_refresh_token, smtp_user, smtp_pass
+    // Explicitly exclude: google_refresh_token, smtp_user, smtp_pass, secrets
   });
 }

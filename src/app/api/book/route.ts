@@ -129,7 +129,8 @@ export async function POST(request: NextRequest) {
         google_event_id: googleEventId,
         meet_link: meetLink,
         cancellation_token: cancellationToken,
-        status: 'confirmed',
+        status: calendar.require_payment ? 'pending' : 'confirmed',
+        payment_status: calendar.require_payment ? 'pending' : null,
         source: source || null,
       })
       .select()
@@ -137,12 +138,14 @@ export async function POST(request: NextRequest) {
 
     if (bookError) throw bookError;
 
-    // 6. Send Emails
+    // 6. Send Emails (ONLY if payment is NOT required right away)
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL}/cancel/${cancellationToken}`;
     const rescheduleUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reschedule/${cancellationToken}`;
-    try {
-      // A. Send Confirmation to Client
-      await sendBookingEmail(booking, calendar, 'confirmation', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
+    
+    if (!calendar.require_payment) {
+      try {
+        // A. Send Confirmation to Client
+        await sendBookingEmail(booking, calendar, 'confirmation', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
 
       // B. Send Alert to Host (User)
       const alertSent = await sendBookingEmail(booking, calendar, 'user_booking_alert', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
@@ -174,9 +177,11 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       console.error('Failed integrations:', err);
     }
+    } // End if (!calendar.require_payment)
 
     return NextResponse.json({ 
       booking, 
+      requiresPayment: calendar.require_payment,
       meetLink, 
       cancelUrl,
       rescheduleUrl

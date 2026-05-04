@@ -678,7 +678,9 @@
   width: 100%;
   max-height: 320px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: var(--ct-radius);
+  border: var(--ct-border-width) solid var(--ct-border);
+  box-shadow: var(--ct-shadow);
   margin-bottom: 32px;
 }
 
@@ -720,15 +722,16 @@
 
 .lpb-prev-cta {
   padding: 14px 36px;
-  border: none;
-  border-radius: 12px;
+  border: var(--ct-border-width) solid var(--ct-btn-border);
+  border-radius: var(--ct-radius);
   font-size: 16px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--ct-btn-text);
+  background: var(--ct-btn-bg);
   cursor: default;
   letter-spacing: -0.01em;
   display: inline-block;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--ct-shadow);
   transition: transform 0.2s;
 }
 
@@ -745,9 +748,10 @@
 
 .lpb-prev-feature-card {
   padding: 24px;
-  background: #f8fafc;
-  border-radius: 14px;
-  border: 1px solid #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--ct-radius);
+  border: var(--ct-border-width) solid var(--ct-border);
+  box-shadow: var(--ct-shadow);
 }
 
 .lpb-prev-feature-icon {
@@ -926,6 +930,91 @@
   font-size: 14px;
   color: #475569;
   line-height: 1.7;
+}
+
+/* ── Theme-Specific Aesthetic Styles ── */
+
+/* 1. Fitness Theme (Dark/Neon) */
+.tp-fitness .lpb-prev-h1, .tp-fitness .lpb-prev-h2 {
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.tp-fitness .lpb-prev-feature-card, .tp-fitness .lpb-prev-testimonial-card, .tp-fitness .lpb-prev-stat-card {
+  background: #141414;
+  border-color: #222;
+}
+
+.tp-fitness .lpb-prev-cta {
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  font-style: italic;
+}
+
+/* 2. Tattoo Theme (Parchment/Serif) */
+.tp-tattoo .lpb-prev-h1, .tp-tattoo .lpb-prev-h2 {
+  font-family: 'Outfit', 'Playfair Display', serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.tp-tattoo .lpb-prev-hero {
+  border-bottom: 1px solid #e2dbd0;
+}
+
+.tp-tattoo .lpb-prev-feature-card, .tp-tattoo .lpb-prev-testimonial-card {
+  background: transparent;
+  border: 1px solid #e2dbd0;
+  border-radius: 0;
+}
+
+.tp-tattoo .lpb-prev-cta {
+  border-radius: 0;
+  border: 1px solid currentColor;
+  background: transparent !important;
+  color: inherit !important;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 12px;
+  padding: 16px 40px;
+}
+
+.tp-tattoo .lpb-prev-cta:hover {
+  background: #1a1410 !important;
+  color: #f7f3ee !important;
+}
+
+/* 3. Garment Theme (Luxury/Editorial) */
+.tp-garment .lpb-prev-h1, .tp-garment .lpb-prev-h2 {
+  font-family: 'Outfit', 'Playfair Display', serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.tp-garment .lpb-prev-section {
+  border-bottom: 1px solid #e8e0d4;
+}
+
+.tp-garment .lpb-prev-feature-card {
+  background: #fff;
+  border: none;
+  box-shadow: 0 10px 30px rgba(42, 33, 24, 0.04);
+}
+
+.tp-garment .lpb-prev-cta {
+  border-radius: 100px;
+  padding: 18px 48px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Layout Adjustments for Preview Frame */
+.lpb-preview-frame[style*="--ct-font"] {
+  font-family: var(--ct-font) !important;
 }
 
 /* Stats */

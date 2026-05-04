@@ -143,10 +143,15 @@ export function getDefaultLayout(): PageLayout {
       headingColor: '#0f172a',
       accentColor: '#2563eb',
       fontFamily: 'Inter, sans-serif',
-      borderRadius: '16px',
+      borderRadius: 'md',
+      borderWidth: 'thin',
+      shadowStyle: 'soft',
+      buttonShape: 'solid',
+      texture: 'none',
       calendarBgColor: '#ffffff',
       calendarTextColor: '#0f172a',
-      calendarStyle: 'flat'
+      calendarStyle: 'flat',
+      calendarTheme: 'default'
     },
   };
 }
