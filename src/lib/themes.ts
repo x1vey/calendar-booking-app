@@ -80,7 +80,7 @@ export interface ThemeMeta {
   /** Default font stack for the theme */
   fontStack: 'sans' | 'serif' | 'mono';
   /** Labels for UI text elements */
-  labels: Record<ThemeLabelKey | string, string>;
+  labels: Record<string, string>;
   /** Optional custom content for the theme */
   content?: Record<string, any>;
   /**

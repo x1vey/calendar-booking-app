@@ -27,6 +27,8 @@ export interface DefaultBookingCalendarProps {
   onBook: (slot: DefaultSlot, bookerName: string, bookerEmail: string) => Promise<void>;
   slotsLoading?: boolean;
   bookingLoading?: boolean;
+  headerPrefix?: string;
+  headerSuffix?: string;
   footer?: string;
   labels?: Record<string, string>;
   content?: Record<string, any>;
@@ -43,6 +45,7 @@ export default function DefaultBookingCalendar({
   onDateSelect,
   onBook,
   slotsLoading = false,
+  bookingLoading = false,
   headerPrefix,
   headerSuffix,
   footer,

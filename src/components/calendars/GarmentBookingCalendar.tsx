@@ -34,7 +34,7 @@ export interface GarmentSlot {
   localStartTime: string;
 }
 
-interface GarmentBookingCalendarProps {
+export interface GarmentBookingCalendarProps {
   studioName?:     string;
   studioLocation?: string;
   appearance?:     AppearanceConfig;

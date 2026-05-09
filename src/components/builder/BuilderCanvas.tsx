@@ -55,10 +55,12 @@ export default function BuilderCanvas() {
       >
         <div className="pointer-events-auto p-4 md:p-8 h-full">
           <CalendarComponent
-            appearance={appearance}
-            slots={[]}
-            onDateSelect={() => {}}
-            onBook={async () => {}}
+            {...{
+              appearance,
+              slots: [],
+              onDateSelect: () => {},
+              onBook: async () => {},
+            } as any}
           />
         </div>
       </div>

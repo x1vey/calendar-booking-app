@@ -34,6 +34,9 @@ function ThemeSkeleton({ bg }: { bg: string }) {
   );
 }
 
+export default function ClientBookingPage({
+  calendar,
+  theme,
   htmlOverrides,
   labels,
   pageLayout,
@@ -159,20 +162,22 @@ function ThemeSkeleton({ bg }: { bg: string }) {
     <div id="booking-section" className="w-full relative z-10">
       <Suspense fallback={<ThemeSkeleton bg={theme.previewBg} />}>
         <CalendarComponent
-          studioName={calendar.name}
-          tagline={calendar.subheading_text}
-          location={calendar.description}
-          accentColor={calendar.accent_color || theme.accent}
-          slots={slots as any}
-          onDateSelect={handleDateSelect}
-          onBook={handleBook as any}
-          slotsLoading={slotsLoading}
-          bookingLoading={bookingLoading}
-          headerPrefix={htmlOverrides.headerPrefix}
-          headerSuffix={htmlOverrides.headerSuffix}
-          footer={htmlOverrides.footer}
-          labels={{ ...theme.labels, ...labels }}
-          content={theme.content}
+          {...{
+            studioName: calendar.name,
+            tagline: calendar.subheading_text,
+            location: calendar.description,
+            accentColor: calendar.accent_color || theme.accent,
+            slots: slots,
+            onDateSelect: handleDateSelect,
+            onBook: handleBook,
+            slotsLoading,
+            bookingLoading,
+            headerPrefix: htmlOverrides.headerPrefix,
+            headerSuffix: htmlOverrides.headerSuffix,
+            footer: htmlOverrides.footer,
+            labels: { ...theme.labels, ...labels },
+            content: theme.content,
+          } as any}
         />
       </Suspense>
     </div>

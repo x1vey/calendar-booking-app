@@ -139,18 +139,20 @@ export default function ThemedBookingClient({
   return (
     <Suspense fallback={<ThemeSkeleton bg={previewBg} />}>
       <CalendarComponent
-        studioName={studioName}
-        tagline={tagline}
-        location={location}
-        accentColor={accentColor}
-        slots={slots as any}          // each calendar component narrows this further
-        onDateSelect={handleDateSelect}
-        onBook={handleBook as any}
-        slotsLoading={slotsLoading}
-        bookingLoading={bookingLoading}
-        headerPrefix={htmlOverrides.headerPrefix}
-        headerSuffix={htmlOverrides.headerSuffix}
-        footer={htmlOverrides.footer}
+        {...{
+          studioName,
+          tagline,
+          location,
+          accentColor,
+          slots,
+          onDateSelect: handleDateSelect,
+          onBook: handleBook,
+          slotsLoading,
+          bookingLoading,
+          headerPrefix: htmlOverrides.headerPrefix,
+          headerSuffix: htmlOverrides.headerSuffix,
+          footer: htmlOverrides.footer,
+        } as any}
       />
     </Suspense>
   );

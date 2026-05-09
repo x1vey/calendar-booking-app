@@ -26,7 +26,7 @@ export interface TattooSlot {
   localStartTime: string;
 }
 
-interface TattooBookingCalendarProps {
+export interface TattooBookingCalendarProps {
   studioName?:    string;
   studioLocation?: string;
   depositAmount?: string;      

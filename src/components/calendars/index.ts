@@ -16,7 +16,7 @@ export { default as GarmentBookingCalendar } from './GarmentBookingCalendar';
 export { default as DefaultBookingCalendar } from './DefaultBookingCalendar';
 
 // ── Slot types ────────────────────────────────────────────────────────────────
-export type { FitnessSlot, FitnessBookingCalendarProps } from './FitnessBookingCalendar';
+export type { FitnessSession as FitnessSlot, FitnessBookingCalendarProps } from './FitnessBookingCalendar';
 export type { TattooSlot, TattooBookingCalendarProps }   from './TattooBookingCalendar';
 export type { GarmentSlot, GarmentBookingCalendarProps } from './GarmentBookingCalendar';
 export type { DefaultSlot, DefaultBookingCalendarProps } from './DefaultBookingCalendar';

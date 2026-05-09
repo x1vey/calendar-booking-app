@@ -93,11 +93,11 @@ export default function CalendarBuilder({
   };
 
   const updateHtml = (key: string, value: string) => {
-    setHtmlOverrides(prev => ({ ...prev, [key]: value }));
+    setHtmlOverrides((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const updateLabel = (key: string, value: string) => {
-    setLabels(prev => ({ ...prev, [key]: value }));
+    setLabels((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = async () => {

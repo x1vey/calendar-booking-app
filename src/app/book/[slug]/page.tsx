@@ -81,7 +81,7 @@ export default async function BookingPage(
   let pageLayout: any = null;
   if (calendar.landing_layout) {
     try {
-      pageLayout = JSON.parse(calendar.landing_layout);
+      pageLayout = typeof calendar.landing_layout === 'string' ? JSON.parse(calendar.landing_layout) : calendar.landing_layout;
     } catch {}
   }
 

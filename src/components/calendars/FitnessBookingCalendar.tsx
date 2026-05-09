@@ -23,7 +23,7 @@ export interface FitnessSession {
   localStartTime: string;
 }
 
-interface FitnessBookingCalendarProps {
+export interface FitnessBookingCalendarProps {
   studioName?: string;
   studioTagline?: string;
   location?: string;

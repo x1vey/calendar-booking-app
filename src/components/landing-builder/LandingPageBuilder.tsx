@@ -135,12 +135,7 @@ export default function LandingPageBuilder({
     setLayout(prev => ({ ...prev, globalStyles: { ...prev.globalStyles, [key]: value } }));
   };
 
-  const themeCSS = buildThemeCSS(layout.globalStyles.calendarTheme as any, {
-    accentColor: layout.globalStyles.accentColor,
-    bgColor: layout.globalStyles.bgColor,
-    textColor: layout.globalStyles.textColor,
-    ...layout.globalStyles,
-  });
+  const themeCSS = buildThemeCSS(layout.globalStyles.calendarTheme as any, layout.globalStyles as any);
 
   // ─── Save ───
   const handleSave = async () => {
