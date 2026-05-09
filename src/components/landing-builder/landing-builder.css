@@ -1137,3 +1137,9 @@
     padding: 40px 24px;
   }
 }
+
+/* ── Builder layout utilities ── */
+.lpb-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.lpb-btn-row { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+.lpb-prop-divider { margin: 12px 0; border: 0; border-top: 1px solid #e2e8f0; }
+.lpb-prop-subhead { font-size: 12px; font-weight: 800; margin: 0 0 10px; color: #0f172a; }

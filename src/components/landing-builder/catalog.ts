@@ -1,5 +1,4 @@
 import { SectionCatalogItem, SectionBlock, PageLayout } from './types';
-import { v4 as uuidv4 } from 'uuid';
 
 export const SECTION_CATALOG: SectionCatalogItem[] = [
   {
@@ -123,7 +122,7 @@ export function createSection(type: SectionCatalogItem['type'], overrides?: any)
   const catalog = SECTION_CATALOG.find(s => s.type === type);
   if (!catalog) throw new Error(`Unknown section type: ${type}`);
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     type: catalog.type,
     label: catalog.label,
     visible: true,

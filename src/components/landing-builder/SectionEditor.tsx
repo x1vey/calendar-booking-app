@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { SectionBlock } from './types';
 
 // ─── Individual section property editors ───
@@ -220,21 +220,20 @@ function LogoStripEditor({ block, onChange }: { block: SectionBlock; onChange: (
   );
 }
 
-// ─── Router ───
+const EDITORS: Record<string, React.FC<{ block: SectionBlock; onChange: (b: SectionBlock) => void }>> = {
+  hero: HeroEditor,
+  features: FeaturesEditor,
+  video: VideoEditor,
+  testimonials: TestimonialsEditor,
+  expectations: ExpectationsEditor,
+  cta: CtaEditor,
+  faq: FaqEditor,
+  stats: StatsEditor,
+  logo_strip: LogoStripEditor,
+};
 
-export default function SectionEditor({ block, onChange }: { block: SectionBlock; onChange: (b: SectionBlock) => void }) {
-  const editors: Record<string, React.FC<{ block: SectionBlock; onChange: (b: SectionBlock) => void }>> = {
-    hero: HeroEditor,
-    features: FeaturesEditor,
-    video: VideoEditor,
-    testimonials: TestimonialsEditor,
-    expectations: ExpectationsEditor,
-    cta: CtaEditor,
-    faq: FaqEditor,
-    stats: StatsEditor,
-    logo_strip: LogoStripEditor,
-  };
-  const Editor = editors[block.type];
+export default memo(function SectionEditor({ block, onChange }: { block: SectionBlock; onChange: (b: SectionBlock) => void }) {
+  const Editor = EDITORS[block.type];
   if (!Editor) return <p className="text-sm text-slate-400">No settings for this section.</p>;
   return <Editor block={block} onChange={onChange} />;
-}
+});

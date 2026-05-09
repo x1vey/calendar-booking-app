@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createCalendarEvent } from '@/lib/google-calendar';
 import { sendBookingEmail } from '@/lib/mail';
 import { generateAvailableSlots } from '@/lib/slots';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { resolveCredentials } from '@/lib/resolve-credentials';
 
 export async function POST(request: NextRequest) {
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     const meetLink = finalMeetingLink;
 
     // 5. Save Booking to DB
-    const cancellationToken = uuidv4();
+    const cancellationToken = randomUUID();
     const { data: booking, error: bookError } = await supabase
       .from('bookings')
       .insert({

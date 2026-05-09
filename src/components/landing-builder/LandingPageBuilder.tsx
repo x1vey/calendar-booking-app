@@ -313,7 +313,7 @@ export default function LandingPageBuilder({
                 </div>
                 <div className="lpb-props-body">
                     <label className="lpb-prop-label">Base Aesthetic (Theme)</label>
-                    <div className="lpb-btn-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                    <div className="lpb-btn-grid">
                       {(['default', 'fitness', 'tattoo', 'garment'] as const).map(t => (
                         <button 
                           key={t} 
@@ -360,11 +360,11 @@ export default function LandingPageBuilder({
                       <span className="lpb-color-hex">{layout.globalStyles.headingColor}</span>
                     </div>
 
-                    <div className="lpb-prop-divider" style={{ margin: '12px 0' }} />
-                    <h4 style={{ fontSize: '12px', fontWeight: 800, margin: '0 0 10px', color: '#0f172a' }}>Shapes & Borders</h4>
+                    <hr className="lpb-prop-divider" />
+                    <h4 className="lpb-prop-subhead">Shapes & Borders</h4>
                     
                     <label className="lpb-prop-label">Corner Radius</label>
-                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                    <div className="lpb-btn-row">
                       {(['none', 'sm', 'md', 'lg', 'full'] as const).map(r => (
                         <button key={r} className={`lpb-chip ${layout.globalStyles.borderRadius === r ? 'active' : ''}`} onClick={() => updateGlobal('borderRadius', r)}>
                           {r}
@@ -373,7 +373,7 @@ export default function LandingPageBuilder({
                     </div>
 
                     <label className="lpb-prop-label">Border Width</label>
-                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                    <div className="lpb-btn-row">
                       {(['none', 'thin', 'medium', 'thick'] as const).map(w => (
                         <button key={w} className={`lpb-chip ${layout.globalStyles.borderWidth === w ? 'active' : ''}`} onClick={() => updateGlobal('borderWidth', w)}>
                           {w}
@@ -382,7 +382,7 @@ export default function LandingPageBuilder({
                     </div>
 
                     <label className="lpb-prop-label">Shadow Depth</label>
-                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                    <div className="lpb-btn-row">
                       {(['none', 'soft', 'strong'] as const).map(s => (
                         <button key={s} className={`lpb-chip ${layout.globalStyles.shadowStyle === s ? 'active' : ''}`} onClick={() => updateGlobal('shadowStyle', s)}>
                           {s}
@@ -391,7 +391,7 @@ export default function LandingPageBuilder({
                     </div>
 
                     <label className="lpb-prop-label">Button Style</label>
-                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+                    <div className="lpb-btn-row">
                       {(['solid', 'outline', 'ghost'] as const).map(s => (
                         <button key={s} className={`lpb-chip ${layout.globalStyles.buttonShape === s ? 'active' : ''}`} onClick={() => updateGlobal('buttonShape', s)}>
                           {s}
@@ -400,7 +400,7 @@ export default function LandingPageBuilder({
                     </div>
 
                     <label className="lpb-prop-label">Overlay Texture</label>
-                    <div className="lpb-btn-row" style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                    <div className="lpb-btn-row">
                       {(['none', 'noise', 'weave', 'dots', 'svg'] as const).map(t => (
                         <button key={t} className={`lpb-chip ${layout.globalStyles.texture === t ? 'active' : ''}`} onClick={() => updateGlobal('texture', t)}>
                           {t}
@@ -408,8 +408,8 @@ export default function LandingPageBuilder({
                       ))}
                     </div>
 
-                    <div className="lpb-prop-divider" style={{ margin: '12px 0' }} />
-                    <h4 style={{ fontSize: '12px', fontWeight: 800, margin: '0 0 10px', color: '#0f172a' }}>Calendar Widget</h4>
+                    <hr className="lpb-prop-divider" />
+                    <h4 className="lpb-prop-subhead">Calendar Widget</h4>
                     
                     <label className="lpb-prop-label">Widget Theme</label>
                     <div className="lpb-btn-row">

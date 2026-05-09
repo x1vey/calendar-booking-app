@@ -1,22 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { SectionBlock } from './types';
 
-// ─── YouTube embed helper ───
 function getYouTubeId(url: string): string | null {
   if (!url) return null;
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
   return match ? match[1] : null;
 }
 
-// ─── Theme-aware styles ───
-const getThemeClasses = (theme?: string) => {
-  if (theme === 'fitness') return 'tp-fitness';
-  if (theme === 'tattoo') return 'tp-tattoo';
-  if (theme === 'garment') return 'tp-garment';
-  return 'tp-default';
-};
+const THEME_CLASS: Record<string, string> = { fitness: 'tp-fitness', tattoo: 'tp-tattoo', garment: 'tp-garment' };
+const getThemeClasses = (theme?: string) => THEME_CLASS[theme ?? ''] ?? 'tp-default';
+
+const accentAlpha = (hex: string, alpha: string) => hex + alpha;
 
 // ─── Section Renderers ───
 
@@ -42,7 +38,7 @@ function FeaturesPreview({ block, accent, theme }: { block: SectionBlock; accent
       <div className="lpb-prev-features-grid">
         {items.map((item, i) => (
           <div key={i} className="lpb-prev-feature-card" style={{ borderRadius: 'var(--ct-radius, 1rem)', border: 'var(--ct-border-width, 1px) solid var(--ct-border, rgba(0,0,0,0.06))', boxShadow: 'var(--ct-shadow, none)' }}>
-            <div className="lpb-prev-feature-icon" style={{ background: accent + '18', color: accent }}>{item.icon}</div>
+            <div className="lpb-prev-feature-icon" style={{ background: accentAlpha(accent, '18'), color: accent }}>{item.icon}</div>
             <h3 className="lpb-prev-h3">{item.title || 'Feature'}</h3>
             <p className="lpb-prev-body">{item.description}</p>
           </div>
@@ -85,13 +81,13 @@ function TestimonialsPreview({ block, accent, theme }: { block: SectionBlock; ac
       <div className="lpb-prev-testimonials-grid">
         {items.map((item, i) => (
           <div key={i} className="lpb-prev-testimonial-card" style={{ borderRadius: 'var(--ct-radius, 1.25rem)', border: 'var(--ct-border-width, 1px) solid var(--ct-border, rgba(0,0,0,0.06))', boxShadow: 'var(--ct-shadow, none)' }}>
-            <svg className="lpb-prev-quote-icon" width="32" height="32" viewBox="0 0 24 24" fill={accent + '25'}><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
+            <svg className="lpb-prev-quote-icon" width="32" height="32" viewBox="0 0 24 24" fill={accentAlpha(accent, '25')}><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
             <p className="lpb-prev-body" style={{ fontStyle: 'italic', marginBottom: 16 }}>"{item.quote}"</p>
             <div className="lpb-prev-testimonial-author">
               {item.avatar ? (
                 <img src={item.avatar} alt="" className="lpb-prev-avatar" style={{ borderRadius: 'var(--ct-radius, 50%)' }} />
               ) : (
-                <div className="lpb-prev-avatar-placeholder" style={{ background: accent + '20', color: accent, borderRadius: 'var(--ct-radius, 50%)' }}>{(item.name || 'A')[0]}</div>
+                <div className="lpb-prev-avatar-placeholder" style={{ background: accentAlpha(accent, '20'), color: accent, borderRadius: 'var(--ct-radius, 50%)' }}>{(item.name || 'A')[0]}</div>
               )}
               <div>
                 <div className="lpb-prev-author-name">{item.name || 'Anonymous'}</div>
@@ -125,7 +121,7 @@ function ExpectationsPreview({ block, accent, theme }: { block: SectionBlock; ac
 
 function CtaPreview({ block, accent, theme, onCtaClick }: { block: SectionBlock; accent: string; theme?: string; onCtaClick?: () => void }) {
   return (
-    <div className={`lpb-prev-cta-section ${getThemeClasses(theme)}`} style={{ background: accent + '08' }}>
+    <div className={`lpb-prev-cta-section ${getThemeClasses(theme)}`} style={{ background: accentAlpha(accent, '08') }}>
       <h2 className="lpb-prev-h2" style={{ textAlign: 'center' }}>{block.props.headline}</h2>
       <p className="lpb-prev-sub" style={{ textAlign: 'center' }}>{block.props.subheadline}</p>
       <div style={{ textAlign: 'center' }}>
@@ -193,21 +189,20 @@ function LogoStripPreview({ block, theme }: { block: SectionBlock; theme?: strin
   );
 }
 
-// ─── Preview Router ───
+const RENDERERS: Record<string, React.FC<{ block: SectionBlock; accent: string; theme?: string; onCtaClick?: () => void }>> = {
+  hero: HeroPreview,
+  features: FeaturesPreview,
+  video: VideoPreview,
+  testimonials: TestimonialsPreview,
+  expectations: ExpectationsPreview,
+  cta: CtaPreview,
+  faq: FaqPreview,
+  stats: StatsPreview,
+  logo_strip: LogoStripPreview,
+};
 
-export default function SectionPreview({ block, accentColor, theme, onCtaClick }: { block: SectionBlock; accentColor: string; theme?: string; onCtaClick?: () => void }) {
-  const renderers: Record<string, React.FC<{ block: SectionBlock; accent: string; theme?: string; onCtaClick?: () => void }>> = {
-    hero: HeroPreview,
-    features: FeaturesPreview,
-    video: VideoPreview,
-    testimonials: TestimonialsPreview,
-    expectations: ExpectationsPreview,
-    cta: CtaPreview,
-    faq: FaqPreview,
-    stats: StatsPreview,
-    logo_strip: LogoStripPreview,
-  };
-  const Renderer = renderers[block.type];
+export default memo(function SectionPreview({ block, accentColor, theme, onCtaClick }: { block: SectionBlock; accentColor: string; theme?: string; onCtaClick?: () => void }) {
+  const Renderer = RENDERERS[block.type];
   if (!Renderer) return null;
   return <Renderer block={block} accent={accentColor} theme={theme} onCtaClick={onCtaClick} />;
-}
+});

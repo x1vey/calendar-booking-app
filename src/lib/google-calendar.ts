@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -68,7 +68,7 @@ export async function createCalendarEvent(refreshToken: string, eventData: {
   if (eventData.useMeet) {
     requestBody.conferenceData = {
       createRequest: {
-        requestId: uuidv4(),
+        requestId: randomUUID(),
         conferenceSolutionKey: {
           type: 'hangoutsMeet',
         },
