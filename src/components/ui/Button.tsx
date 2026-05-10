@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Soft-paper pill button — matches Call Me wireframe aesthetic.
+ * Pill-shaped, ink-brown primary, peach accent, ghost variant.
+ */
 const Button = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -14,41 +18,44 @@ const Button = React.forwardRef<
   }
 >(({ className, variant = "primary", size = "md", ...props }, ref) => {
   const variants = {
-    // Primary: indigo with subtle glow + lift on hover
+    // Primary: filled ink-brown pill
     primary:
-      "bg-indigo-600 text-white shadow-[0_2px_8px_rgba(99,102,241,0.25)] " +
-      "hover:bg-indigo-500 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(99,102,241,0.35)] " +
-      "active:translate-y-0",
-    // Secondary: clean white with crisp border
+      "bg-[#2b2722] text-[#f6f1e8] border-[1.4px] border-[#2b2722] " +
+      "hover:bg-[#5a5249] hover:border-[#5a5249] hover:-translate-y-px active:translate-y-0",
+
+    // Secondary: cream pill with soft border
     secondary:
-      "bg-white text-slate-900 border border-slate-200 shadow-[0_1px_2px_rgba(15,23,42,0.04)] " +
-      "hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-px active:translate-y-0",
-    // Danger: rose, same lift treatment
+      "bg-[#fffaf0] text-[#2b2722] border-[1.4px] border-[#b8a98f] " +
+      "hover:border-[#2b2722] hover:bg-[#efe7d7]",
+
+    // Danger: terracotta accent
     danger:
-      "bg-rose-600 text-white shadow-[0_2px_8px_rgba(244,63,94,0.25)] " +
-      "hover:bg-rose-500 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(244,63,94,0.35)] " +
-      "active:translate-y-0",
-    // Ghost: minimal, gentle hover surface
+      "bg-[#b8714e] text-[#fffaf0] border-[1.4px] border-[#2b2722] " +
+      "hover:bg-[#9c5e3f] hover:-translate-y-px active:translate-y-0",
+
+    // Ghost: transparent, subtle hover
     ghost:
-      "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-    // Outline: indigo accent ring
+      "bg-transparent text-[#2b2722] border-[1.4px] border-transparent " +
+      "hover:bg-[#efe7d7]",
+
+    // Outline: peach accent ring
     outline:
-      "bg-transparent border border-indigo-300 text-indigo-700 " +
-      "hover:bg-indigo-50 hover:border-indigo-500",
+      "bg-transparent text-[#2b2722] border-[1.4px] border-[#2b2722] " +
+      "hover:bg-[oklch(0.74_0.10_55)]",
   }
   const sizes = {
     sm: "h-8 px-3 text-xs gap-1.5",
-    md: "h-10 px-4 py-2 text-sm gap-2",
-    lg: "h-12 px-6 text-base gap-2",
+    md: "h-10 px-5 text-sm gap-2",
+    lg: "h-12 px-7 text-base gap-2",
   }
 
   return (
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center rounded-lg font-semibold tracking-tight " +
-        "transition-all duration-200 ease-out " +
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 " +
+        "inline-flex items-center justify-center rounded-full font-semibold tracking-tight",
+        "transition-all duration-200 ease-out",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.62_0.10_25)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f6f1e8]",
         "disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         sizes[size],

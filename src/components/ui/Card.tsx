@@ -1,6 +1,10 @@
 import * as React from "react"
 import { cn } from "./Button"
 
+/**
+ * Soft-paper card — matches Call Me wireframe aesthetic.
+ * Cream background, warm dashed/soft border, gentle hover.
+ */
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -8,12 +12,9 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      // Refined card: softer border, lighter shadow, gentle hover lift
-      "rounded-xl border border-slate-200/70 bg-white text-slate-900",
-      "shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
+      "rounded-[14px] border-[1.4px] border-[#b8a98f] bg-[#fffaf0] text-[#2b2722]",
       "transition-all duration-200 ease-out",
-      "hover:shadow-[0_8px_24px_rgba(15,23,42,0.06),0_2px_6px_rgba(15,23,42,0.04)]",
-      "hover:border-slate-200",
+      "hover:border-[#2b2722]",
       className
     )}
     {...props}

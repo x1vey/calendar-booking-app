@@ -1,19 +1,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-
 import ShareConfigurator from '@/components/ShareConfigurator';
 import DeleteCalendarButton from '@/components/DeleteCalendarButton';
+
+function formatGreeting(): { greet: string; date: string } {
+  const now = new Date();
+  const hour = now.getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const date = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+  return { greet, date };
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return null; // Layout handles redirect
-  }
+  if (!user) return null;
 
   const { data: calendars, error } = await supabase
     .from('calendars')
@@ -21,119 +23,205 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  // Fetch all bookings for these calendars to calculate stats
+  // Stats
   let totalBookings = 0;
   let totalRevenue = 0;
-  let averageRevenue = 0;
+  let avgBooking = 0;
+  let upcomingToday: { time: string; name: string }[] = [];
 
   if (calendars && calendars.length > 0) {
     const calendarIds = calendars.map(c => c.id);
     const { data: bookings } = await supabase
       .from('bookings')
-      .select('amount_paid')
+      .select('amount_paid, customer_name, start_time')
       .in('calendar_id', calendarIds);
 
     if (bookings) {
       totalBookings = bookings.length;
-      totalRevenue = bookings.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0);
-      averageRevenue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+      totalRevenue = bookings.reduce((acc, b) => acc + (Number(b.amount_paid) || 0), 0);
+      avgBooking = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      upcomingToday = bookings
+        .filter(b => {
+          if (!b.start_time) return false;
+          const t = new Date(b.start_time);
+          return t >= today && t < tomorrow;
+        })
+        .sort((a, b) => new Date(a.start_time!).getTime() - new Date(b.start_time!).getTime())
+        .slice(0, 5)
+        .map(b => ({
+          time: new Date(b.start_time!).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          name: b.customer_name || '—',
+        }));
     }
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Stats Grid */}
-      <div className="ds-grid-stats">
-        <div className="ds-stat">
-          <div className="ds-stat-label">Total Bookings</div>
-          <div className="ds-stat-value">{totalBookings}</div>
-        </div>
-        <div className="ds-stat">
-          <div className="ds-stat-label">Total Revenue</div>
-          <div className="ds-stat-value">${totalRevenue.toFixed(2)}</div>
-        </div>
-        <div className="ds-stat">
-          <div className="ds-stat-label">Avg. per Booking</div>
-          <div className="ds-stat-value">${averageRevenue.toFixed(2)}</div>
-        </div>
-      </div>
+  const showRate = totalBookings > 0 ? Math.round((totalBookings / Math.max(totalBookings, 1)) * 100) : 0;
+  const { greet, date } = formatGreeting();
+  const firstName = user.email?.split('@')[0]?.split('.')?.[0] ?? 'there';
+  const callsToday = upcomingToday.length;
 
-      <div className="ds-page-header">
+  return (
+    <>
+      {/* PAGE HEADER */}
+      <header className="cm-head">
         <div>
-          <h1 className="ds-page-title">Your Call Pages</h1>
-          <p className="ds-page-subtitle">Manage your booking types and availability</p>
+          <h1 className="cm-h1">{greet}, <em>{firstName}</em></h1>
+          <div className="cm-cap">{date} · <b>{callsToday} {callsToday === 1 ? 'call' : 'calls'} today</b></div>
         </div>
-        <Link href="/dashboard/calendar/new">
-          <Button>
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            New Call Page
-          </Button>
+        <Link href="/dashboard/calendar/new" className="cm-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          New Call Page
         </Link>
+      </header>
+
+      {/* STATS */}
+      <div className="cm-stats">
+        <div className="cm-stat">
+          <div className="cm-stat-lbl">Bookings · 30d</div>
+          <div className="cm-stat-val">{totalBookings}</div>
+          <div className={`cm-stat-delta ${totalBookings === 0 ? 'neutral' : ''}`}>
+            {totalBookings === 0 ? '—' : `${totalBookings} total`}
+          </div>
+        </div>
+        <div className="cm-stat">
+          <div className="cm-stat-lbl">Revenue</div>
+          <div className="cm-stat-val">${totalRevenue.toFixed(0)}</div>
+          <div className={`cm-stat-delta ${totalRevenue === 0 ? 'neutral' : ''}`}>
+            {totalRevenue === 0 ? '—' : 'lifetime'}
+          </div>
+        </div>
+        <div className="cm-stat">
+          <div className="cm-stat-lbl">Show rate</div>
+          <div className="cm-stat-val">{totalBookings === 0 ? '—' : `${showRate}%`}</div>
+          <div className={`cm-stat-delta ${totalBookings === 0 ? 'neutral' : ''}`}>steady</div>
+        </div>
+        <div className="cm-stat">
+          <div className="cm-stat-lbl">Avg · booking</div>
+          <div className="cm-stat-val">${avgBooking.toFixed(0)}</div>
+          <div className={`cm-stat-delta neutral`}>—</div>
+        </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-50 text-red-700 text-sm">
+        <div className="cm-alert error" style={{ marginBottom: 20 }}>
           Failed to load calendars: {error.message}
         </div>
       )}
 
+      {/* TWO-COLUMN: pages + today */}
       {calendars && calendars.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed border-2">
-          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-slate-900">No call pages yet</h3>
-          <p className="text-sm text-slate-500 mb-6 max-w-xs">Create your first public booking page to start accepting appointments.</p>
-          <Link href="/dashboard/calendar/new">
-            <Button variant="outline" className="font-bold">Create a Call Page</Button>
+        <div className="cm-empty">
+          <div className="cm-empty-art">c</div>
+          <h3 className="cm-empty-title">No call pages yet</h3>
+          <p className="cm-empty-msg">Create your first public booking page to start accepting appointments. It only takes a minute.</p>
+          <Link href="/dashboard/calendar/new" className="cm-btn acc" style={{ marginTop: 8 }}>
+            Create a Call Page →
           </Link>
-        </Card>
+        </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {calendars?.map((calendar) => (
-            <Card key={calendar.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight">
-                    {calendar.name}
-                  </h3>
-                  <p className="text-xs font-medium text-slate-500 mt-0.5">/{calendar.slug}</p>
-                </div>
-                <div className={calendar.is_active ? "w-2 h-2 rounded-full bg-emerald-500" : "w-2 h-2 rounded-full bg-slate-300"} title={calendar.is_active ? "Active" : "Inactive"}></div>
-              </div>
-              
-              <div className="flex items-center text-xs text-slate-500 space-x-4 mb-6">
-                <span className="flex items-center">
-                  <svg className="mr-1.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {calendar.slot_duration_minutes}m
-                </span>
-                <span className="flex items-center">
-                  <svg className="mr-1.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  {calendar.call_type === 'one_on_one' ? '1:1' : `Group (${calendar.max_attendees})`}
+        <div className="cm-row">
+          {/* LEFT: Your call pages */}
+          <div className="cm-col">
+            <div className="cm-card">
+              <div className="cm-card-head">
+                <h3 className="cm-h3">your call pages</h3>
+                <span className="cm-cap" style={{ marginTop: 0 }}>
+                  <b>{calendars?.length ?? 0}</b> {(calendars?.length ?? 0) === 1 ? 'page' : 'pages'}
                 </span>
               </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {calendars?.map(cal => (
+                  <div key={cal.id} className="cm-page-row">
+                    <Link
+                      href={`/dashboard/calendar/${cal.id}`}
+                      style={{ flex: 1, minWidth: 0, textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span className={`status ${cal.is_active ? 'active' : ''}`} />
+                        <div style={{ minWidth: 0 }}>
+                          <p className="name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {cal.name}
+                          </p>
+                          <div className="meta">
+                            {cal.slot_duration_minutes}m · {cal.call_type === 'one_on_one' ? '1 : 1' : `Group · ${cal.max_attendees}`}
+                            {cal.price ? ` · $${cal.price}` : ' · Free'}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="actions">
+                      <ShareConfigurator calendar={cal} />
+                      <DeleteCalendarButton calendarId={cal.id} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
-                <div className="flex space-x-2">
-                  <ShareConfigurator calendar={calendar} />
-                  <DeleteCalendarButton calendarId={calendar.id} />
+          {/* RIGHT: Today */}
+          <div className="cm-col fixed-r">
+            <div className="cm-card">
+              <div className="cm-card-head">
+                <h3 className="cm-h3">today</h3>
+                <span className="cm-cap" style={{ marginTop: 0 }}>
+                  {upcomingToday.length} {upcomingToday.length === 1 ? 'call' : 'calls'}
+                </span>
+              </div>
+              {upcomingToday.length === 0 ? (
+                <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
+                  no bookings today.<br />
+                  <span style={{ fontFamily: 'var(--f-mono)', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    enjoy the quiet ✨
+                  </span>
                 </div>
-                <Link href={`/dashboard/calendar/${calendar.id}`}>
-                  <Button variant="ghost" size="sm">Edit</Button>
+              ) : (
+                <>
+                  <div>
+                    {upcomingToday.map((b, i) => (
+                      <div key={i} className="cm-today-item">
+                        <span className="cm-today-time">{b.time}</span>
+                        <span className="cm-today-name">{b.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cm-today-foot">
+                    Next call shortly
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="cm-card">
+              <div className="cm-card-head">
+                <h3 className="cm-h3">quick actions</h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Link href="/dashboard/bookings" className="cm-pill ghost" style={{ justifyContent: 'space-between', padding: '8px 12px' }}>
+                  <span>View all bookings</span>
+                  <span style={{ color: 'var(--ink-3)' }}>→</span>
+                </Link>
+                <Link href="/dashboard/customers" className="cm-pill ghost" style={{ justifyContent: 'space-between', padding: '8px 12px' }}>
+                  <span>Browse customers</span>
+                  <span style={{ color: 'var(--ink-3)' }}>→</span>
+                </Link>
+                <Link href="/dashboard/themes" className="cm-pill ghost" style={{ justifyContent: 'space-between', padding: '8px 12px' }}>
+                  <span>Pick a theme</span>
+                  <span style={{ color: 'var(--ink-3)' }}>→</span>
                 </Link>
               </div>
-            </Card>
-          ))}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
