@@ -42,30 +42,30 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 bg-white shadow-sm border-slate-200">
-          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Total Bookings</div>
-          <div className="text-3xl font-black text-slate-900">{totalBookings}</div>
-        </Card>
-        <Card className="p-6 bg-white shadow-sm border-slate-200">
-          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Total Revenue</div>
-          <div className="text-3xl font-black text-slate-900">${totalRevenue.toFixed(2)}</div>
-        </Card>
-        <Card className="p-6 bg-white shadow-sm border-slate-200">
-          <div className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Avg. per Booking</div>
-          <div className="text-3xl font-black text-slate-900">${averageRevenue.toFixed(2)}</div>
-        </Card>
+      {/* Stats Grid */}
+      <div className="ds-grid-stats">
+        <div className="ds-stat">
+          <div className="ds-stat-label">Total Bookings</div>
+          <div className="ds-stat-value">{totalBookings}</div>
+        </div>
+        <div className="ds-stat">
+          <div className="ds-stat-label">Total Revenue</div>
+          <div className="ds-stat-value">${totalRevenue.toFixed(2)}</div>
+        </div>
+        <div className="ds-stat">
+          <div className="ds-stat-label">Avg. per Booking</div>
+          <div className="ds-stat-value">${averageRevenue.toFixed(2)}</div>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="ds-page-header">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Your Call Pages</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">Manage your booking types and availability</p>
+          <h1 className="ds-page-title">Your Call Pages</h1>
+          <p className="ds-page-subtitle">Manage your booking types and availability</p>
         </div>
         <Link href="/dashboard/calendar/new">
           <Button>
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
             New Call Page
