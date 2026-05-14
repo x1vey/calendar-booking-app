@@ -1,7 +1,7 @@
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import DashboardSidebar from './DashboardSidebar';
+import DashboardShell from './DashboardShell';
 import './dashboard-shell.css';
 
 export default async function DashboardLayout({
@@ -17,13 +17,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="ds-root">
-      <DashboardSidebar email={user.email ?? ''} />
-      <main className="ds-main">
-        <div className="ds-main-inner">
-          {children}
-        </div>
-      </main>
-    </div>
+    <DashboardShell email={user.email ?? ''}>
+      {children}
+    </DashboardShell>
   );
 }

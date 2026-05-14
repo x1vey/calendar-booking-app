@@ -19,26 +19,32 @@ export default async function EmailsPage() {
 
   if (!calendars || calendars.length === 0) {
     return (
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Email Templates</h1>
-          <p className="mt-1 text-sm text-slate-500">Manage confirmation and reminder emails for your calendars.</p>
+      <>
+        <header className="cm-head">
+          <div>
+            <h1 className="cm-h1">Email <em>templates</em></h1>
+            <div className="cm-cap">CONFIRMATION & REMINDER EMAILS FOR YOUR CALENDARS</div>
+          </div>
+        </header>
+        <div className="cm-empty">
+          <div className="cm-empty-art">✉</div>
+          <h3 className="cm-empty-title">No calendars yet</h3>
+          <p className="cm-empty-msg">Create a calendar first — then you can customize the emails that go to each booker.</p>
         </div>
-        <div className="p-12 text-center bg-white rounded-xl border border-slate-200">
-          <p className="text-slate-500 text-sm">Please create a calendar first to manage its email templates.</p>
-        </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Email Templates</h1>
-        <p className="mt-1 text-sm text-slate-500">Manage confirmation and reminder emails. Templates are localized to each calendar so you can customize them based on the event context.</p>
-      </div>
+    <>
+      <header className="cm-head">
+        <div>
+          <h1 className="cm-h1">Email <em>templates</em></h1>
+          <div className="cm-cap">LOCALIZED PER CALENDAR · CUSTOMIZE TO MATCH YOUR VOICE</div>
+        </div>
+      </header>
 
       <EmailsClient initialCalendars={calendars} />
-    </div>
+    </>
   );
 }
