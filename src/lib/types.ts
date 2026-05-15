@@ -182,3 +182,44 @@ export interface TeamMember {
   is_active: boolean;
   created_at: string;
 }
+
+// Pipeline types
+export type PipelineTrigger = 'booking_confirmed' | 'booking_cancelled';
+export type PipelineStepType = 'send_email' | 'wait';
+export type WaitAnchor = 'after_previous' | 'before_event';
+export type ExecutionStatus = 'pending' | 'waiting' | 'sent' | 'skipped' | 'failed';
+
+export interface EmailPipeline {
+  id: string;
+  calendar_id: string;
+  trigger_event: PipelineTrigger;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  steps?: EmailPipelineStep[];
+}
+
+export interface EmailPipelineStep {
+  id: string;
+  pipeline_id: string;
+  step_order: number;
+  step_type: PipelineStepType;
+  email_template_id: string | null;
+  wait_duration_minutes: number | null;
+  wait_anchor: WaitAnchor | null;
+  created_at: string;
+  email_template?: EmailTemplate;
+}
+
+export interface EmailPipelineExecution {
+  id: string;
+  booking_id: string;
+  pipeline_id: string;
+  step_id: string;
+  status: ExecutionStatus;
+  scheduled_at: string | null;
+  executed_at: string | null;
+  error_message: string | null;
+  created_at: string;
+}

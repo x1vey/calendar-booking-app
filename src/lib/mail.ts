@@ -3,6 +3,9 @@ import { sendSmtpEmail } from './nodemailer';
 import { Calendar, EmailTemplateType } from './types';
 import { createAdminClient } from './supabase/admin';
 import { formatInTimezone } from './timezone';
+import { renderTemplate } from './template-utils';
+
+export { renderTemplate };
 
 interface SendEmailOptions {
   to: string;
@@ -37,15 +40,6 @@ export async function sendEmail({
     subject,
     html,
   });
-}
-
-export function renderTemplate(template: string, variables: Record<string, string>) {
-  let rendered = template;
-  for (const [key, value] of Object.entries(variables)) {
-    const placeholder = new RegExp(`{{${key}}}`, 'g');
-    rendered = rendered.replace(placeholder, value || '');
-  }
-  return rendered;
 }
 
 export async function sendBookingEmail(

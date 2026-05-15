@@ -14,12 +14,12 @@ export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
   const now = new Date();
 
-  // 1. Fetch upcoming confirmed bookings
-  // We look ahead up to 25 hours to catch anything in the windows
+  // 1. Fetch upcoming confirmed bookings (legacy only — pipeline bookings are handled by process-pipeline)
   const { data: bookings, error } = await supabase
     .from('bookings')
     .select('*, calendars(*)')
     .eq('status', 'confirmed')
+    .eq('uses_pipeline', false)
     .gt('start_time', now.toISOString())
     .lt('start_time', addDays(now, 2).toISOString());
 

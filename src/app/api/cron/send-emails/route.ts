@@ -12,12 +12,12 @@ export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
   const now = new Date();
 
-  // 1. Reminders
-  // Find bookings where status = confirmed AND reminder_sent = false
+  // 1. Reminders (legacy only — pipeline bookings are handled by process-pipeline)
   const { data: reminderBookings } = await supabase
     .from('bookings')
     .select('*, calendars(*)')
     .eq('status', 'confirmed')
+    .eq('uses_pipeline', false)
     .eq('reminder_sent', false);
 
   let reminderCount = 0;
@@ -45,11 +45,12 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // 2. Follow-ups
+  // 2. Follow-ups (legacy only)
   const { data: followupBookings } = await supabase
     .from('bookings')
     .select('*, calendars(*)')
     .eq('status', 'confirmed')
+    .eq('uses_pipeline', false)
     .eq('followup_sent', false);
 
   let followupCount = 0;
@@ -76,11 +77,12 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // 3. Review Requests
+  // 3. Review Requests (legacy only)
   const { data: reviewBookings } = await supabase
     .from('bookings')
     .select('*, calendars(*)')
     .eq('status', 'confirmed')
+    .eq('uses_pipeline', false)
     .eq('review_request_sent', false);
 
   let reviewCount = 0;

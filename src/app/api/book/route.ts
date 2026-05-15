@@ -5,6 +5,7 @@ import { sendBookingEmail } from '@/lib/mail';
 import { generateAvailableSlots } from '@/lib/slots';
 import { randomUUID } from 'crypto';
 import { resolveCredentials } from '@/lib/resolve-credentials';
+import { calculateExecutionSchedule } from '@/lib/pipeline';
 
 export async function POST(request: NextRequest) {
   try {
@@ -138,27 +139,52 @@ export async function POST(request: NextRequest) {
 
     if (bookError) throw bookError;
 
-    // 6. Send Emails (ONLY if payment is NOT required right away)
+    // 6. Pipeline or legacy email sending (ONLY if payment is NOT required right away)
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL}/cancel/${cancellationToken}`;
     const rescheduleUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reschedule/${cancellationToken}`;
-    
-    if (!calendar.require_payment) {
-      try {
-        // A. Send Confirmation to Client
-        await sendBookingEmail(booking, calendar, 'confirmation', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
 
-      // B. Send Alert to Host (User)
-      const alertSent = await sendBookingEmail(booking, calendar, 'user_booking_alert', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
-      
-      if (alertSent) {
-        await supabase
-          .from('bookings')
-          .update({ alert_user_sent: true })
-          .eq('id', booking.id);
+    if (!calendar.require_payment) {
+      // Check for pipeline
+      const { data: pipeline } = await supabase
+        .from('email_pipelines')
+        .select('*, email_pipeline_steps(*)')
+        .eq('calendar_id', calendar.id)
+        .eq('trigger_event', 'booking_confirmed')
+        .eq('is_active', true)
+        .single();
+
+      if (pipeline && pipeline.email_pipeline_steps?.length > 0) {
+        await supabase.from('bookings').update({ uses_pipeline: true }).eq('id', booking.id);
+
+        const executions = calculateExecutionSchedule(
+          pipeline.email_pipeline_steps,
+          new Date(),
+          new Date(booking.start_time)
+        );
+
+        if (executions.length > 0) {
+          await supabase.from('email_pipeline_executions').insert(
+            executions.map(e => ({
+              booking_id: booking.id,
+              pipeline_id: pipeline.id,
+              step_id: e.stepId,
+              status: e.status,
+              scheduled_at: e.scheduledAt,
+            }))
+          );
+        }
+      } else {
+        // Legacy: direct email sending
+        try {
+          await sendBookingEmail(booking, calendar, 'confirmation', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
+          const alertSent = await sendBookingEmail(booking, calendar, 'user_booking_alert', cancelUrl, rescheduleUrl, { smtpUser, smtpPass });
+          if (alertSent) {
+            await supabase.from('bookings').update({ alert_user_sent: true }).eq('id', booking.id);
+          }
+        } catch (err) {
+          console.error('Failed to send email:', err);
+        }
       }
-    } catch (err) {
-      console.error('Failed to send email:', err);
-    }
 
     // 7. Send Slack and WhatsApp Notifications
     try {
@@ -167,13 +193,11 @@ export async function POST(request: NextRequest) {
         .select('slack_webhook_url, whatsapp_enabled, twilio_account_sid, twilio_auth_token')
         .eq('user_id', calendar.user_id)
         .single();
-        
+
       if (userSettings?.slack_webhook_url) {
         const { sendSlackNotification } = await import('@/lib/slack');
         await sendSlackNotification(userSettings.slack_webhook_url, booking);
       }
-      
-      // Note: WhatsApp logic would go here
     } catch (err) {
       console.error('Failed integrations:', err);
     }

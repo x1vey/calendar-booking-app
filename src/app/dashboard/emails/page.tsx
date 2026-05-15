@@ -39,8 +39,8 @@ export default async function EmailsPage() {
     <>
       <header className="cm-head">
         <div>
-          <h1 className="cm-h1">Email <em>templates</em></h1>
-          <div className="cm-cap">LOCALIZED PER CALENDAR · CUSTOMIZE TO MATCH YOUR VOICE</div>
+          <h1 className="cm-h1">Email <em>pipelines</em></h1>
+          <div className="cm-cap">VISUAL EMAIL FLOWS · CONFIGURE WHEN AND WHAT TO SEND</div>
         </div>
       </header>
 

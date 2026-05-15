@@ -26,3 +26,9 @@ jobs:
           echo "Hitting endpoint: ${{ secrets.URL_PROJECT }}/api/cron/send-reminders"
           curl -f -v -X GET "${{ secrets.URL_PROJECT }}/api/cron/send-reminders" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      - name: Process Pipeline Emails
+        run: |
+          echo "Hitting endpoint: ${{ secrets.URL_PROJECT }}/api/cron/process-pipeline"
+          curl -f -v -X GET "${{ secrets.URL_PROJECT }}/api/cron/process-pipeline" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
